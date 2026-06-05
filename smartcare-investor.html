@@ -1,0 +1,2618 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Care – Investor Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --teal:#1D9E75;--teal-light:#9FE1CB;--teal-dark:#0F6E56;--teal-pale:#E1F5EE;
+  --teal-deep:#04342C;--amber:#BA7517;--amber-pale:#FAEEDA;
+  --gray:#444441;--gray-light:#F1EFE8;--gray-mid:#888780;
+  --white:#fff;--text:#1a1a1a;--text-muted:#5a5a5a;--border:rgba(0,0,0,0.09);
+  --font-sans:'DM Sans',sans-serif;--font-serif:'DM Serif Display',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-sans);background:#f7f9f7;color:var(--text);overflow-x:hidden;}
+
+/* ═══════════════════════════════════
+   PASSWORD GATE
+═══════════════════════════════════ */
+#gate{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--teal-deep);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2rem;
+  overflow:hidden;
+}
+#gate-canvas{position:absolute;inset:0;opacity:0.6;}
+.gate-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.5rem;}
+.gate-logo-wrap{display:flex;align-items:center;gap:1rem;}
+.gate-logo-mark{
+  width:60px;height:60px;border-radius:16px;
+  background:linear-gradient(135deg,var(--teal),var(--teal-light));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-serif);font-size:26px;color:white;
+  box-shadow:0 8px 32px rgba(29,158,117,0.4);
+}
+.gate-wordmark{font-family:var(--font-serif);font-size:2.4rem;color:white;letter-spacing:-0.02em;}
+.gate-tagline{
+  color:rgba(255,255,255,0.5);font-size:0.72rem;letter-spacing:0.14em;
+  text-transform:uppercase;text-align:center;
+}
+.gate-box{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:24px;padding:2.5rem;width:380px;max-width:92vw;
+  backdrop-filter:blur(20px);
+}
+.gate-box h2{font-family:var(--font-serif);color:white;font-size:1.5rem;margin-bottom:0.4rem;font-weight:400;}
+.gate-box p{color:rgba(255,255,255,0.5);font-size:0.83rem;margin-bottom:1.5rem;}
+.gate-input{
+  width:100%;padding:0.9rem 1.1rem;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);
+  border-radius:12px;color:white;font-size:1rem;font-family:var(--font-sans);
+  letter-spacing:0.12em;outline:none;transition:border-color 0.2s;
+}
+.gate-input::placeholder{color:rgba(255,255,255,0.28);letter-spacing:0;}
+.gate-input:focus{border-color:var(--teal-light);}
+.gate-btn{
+  width:100%;margin-top:1rem;padding:0.95rem;
+  background:var(--teal);border:none;border-radius:12px;
+  font-family:var(--font-sans);font-size:0.95rem;font-weight:600;color:white;
+  cursor:pointer;transition:all 0.2s;letter-spacing:0.01em;
+}
+.gate-btn:hover{background:var(--teal-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(29,158,117,0.4);}
+.gate-error{color:#F09595;font-size:0.8rem;margin-top:0.5rem;min-height:1.2em;}
+.gate-pulse{
+  position:absolute;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(29,158,117,0.15) 0%,transparent 70%);
+  animation:pulse 4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:0.6;}50%{transform:scale(1.1);opacity:1;}}
+
+/* ═══════════════════════════════════
+   TYPE SELECTOR
+═══════════════════════════════════ */
+#type-selector{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(4,52,44,0.9);backdrop-filter:blur(12px);
+  display:none;align-items:center;justify-content:center;
+}
+.type-box{
+  background:white;border-radius:28px;
+  padding:2.8rem;width:580px;max-width:95vw;
+  animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.type-box h2{font-family:var(--font-serif);font-size:1.9rem;margin-bottom:0.4rem;font-weight:400;}
+.type-box p{color:var(--text-muted);font-size:0.88rem;margin-bottom:1.8rem;}
+.type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.8rem;}
+.type-card{
+  border:1.5px solid var(--border);border-radius:16px;
+  padding:1.4rem 1rem;cursor:pointer;transition:all 0.25s;text-align:center;
+}
+.type-card:hover{border-color:var(--teal);background:var(--teal-pale);transform:translateY(-3px);box-shadow:0 8px 24px rgba(29,158,117,0.15);}
+.type-icon{font-size:2rem;margin-bottom:0.6rem;}
+.type-name{font-weight:600;font-size:0.88rem;margin-bottom:0.25rem;}
+.type-desc{font-size:0.75rem;color:var(--text-muted);}
+
+/* ═══════════════════════════════════
+   TOP BAR
+═══════════════════════════════════ */
+#app{display:none;}
+.top-bar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0 2rem;height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:all 0.3s;
+}
+.top-bar.scrolled{
+  background:rgba(255,255,255,0.92);backdrop-filter:blur(18px);
+  border-bottom:0.5px solid var(--border);
+}
+.top-logo{display:flex;align-items:center;gap:0.7rem;font-family:var(--font-serif);font-size:1.3rem;color:white;transition:color 0.3s;}
+.top-bar.scrolled .top-logo{color:var(--teal-dark);}
+.top-logo-mark{
+  width:34px;height:34px;background:var(--teal);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;color:white;font-family:var(--font-serif);font-weight:700;
+}
+.top-right{display:flex;align-items:center;gap:1rem;}
+.nav-links{display:flex;gap:1.5rem;}
+.nav-links a{
+  font-size:0.82rem;color:rgba(255,255,255,0.8);text-decoration:none;
+  font-weight:500;transition:color 0.15s;
+}
+.top-bar.scrolled .nav-links a{color:var(--text-muted);}
+.nav-links a:hover{color:var(--teal-light);}
+.top-bar.scrolled .nav-links a:hover{color:var(--teal);}
+.lang-btn{display:flex;border:1px solid rgba(255,255,255,0.25);border-radius:8px;overflow:hidden;}
+.top-bar.scrolled .lang-btn{border-color:var(--border);}
+.lang-btn button{
+  padding:0.3rem 0.75rem;background:none;border:none;
+  cursor:pointer;color:rgba(255,255,255,0.7);
+  font-family:var(--font-sans);font-weight:500;font-size:0.8rem;transition:all 0.15s;
+}
+.top-bar.scrolled .lang-btn button{color:var(--text-muted);}
+.lang-btn button.active{background:var(--teal);color:white;}
+
+/* ═══════════════════════════════════
+   HERO – VIDEO BG + PARTICLES
+═══════════════════════════════════ */
+.hero{
+  min-height:100vh;padding-top:62px;position:relative;
+  display:flex;align-items:center;overflow:hidden;
+  background:var(--teal-deep);
+}
+#hero-canvas{position:absolute;inset:0;z-index:1;}
+.hero-video-overlay{
+  position:absolute;inset:0;z-index:2;
+  background:linear-gradient(160deg,rgba(4,52,44,0.85) 0%,rgba(15,110,86,0.7) 60%,rgba(29,158,117,0.5) 100%);
+}
+.hero-content{
+  position:relative;z-index:3;
+  max-width:1100px;margin:0 auto;padding:5rem 2rem 5rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+  border-radius:100px;padding:0.35rem 1rem;
+  font-size:0.74rem;color:rgba(255,255,255,0.85);
+  letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.5rem;
+  animation:fadeUp 0.8s ease both;
+}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:var(--teal-light);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.hero h1{
+  font-family:var(--font-serif);font-size:3.4rem;color:white;
+  line-height:1.08;font-weight:400;letter-spacing:-0.025em;
+  animation:fadeUp 0.8s 0.15s ease both;
+}
+.hero h1 em{color:var(--teal-light);font-style:normal;}
+.hero-sub{
+  color:rgba(255,255,255,0.65);font-size:1rem;line-height:1.7;
+  margin:1.2rem 0 2rem;animation:fadeUp 0.8s 0.3s ease both;
+}
+.hero-cta{display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp 0.8s 0.45s ease both;}
+.btn-primary{
+  padding:0.85rem 1.9rem;background:var(--teal);color:white;
+  border:none;border-radius:12px;font-family:var(--font-sans);
+  font-weight:600;font-size:0.9rem;cursor:pointer;transition:all 0.2s;
+  text-decoration:none;display:inline-block;letter-spacing:0.01em;
+}
+.btn-primary:hover{background:var(--teal-dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(29,158,117,0.4);}
+.btn-outline{
+  padding:0.85rem 1.9rem;background:transparent;color:white;
+  border:1px solid rgba(255,255,255,0.35);border-radius:12px;
+  font-family:var(--font-sans);font-weight:500;font-size:0.9rem;
+  cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;
+}
+.btn-outline:hover{background:rgba(255,255,255,0.1);border-color:white;}
+.hero-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:1rem;
+  animation:fadeUp 0.8s 0.3s ease both;
+}
+.hero-stat{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.13);
+  border-radius:18px;padding:1.6rem;backdrop-filter:blur(10px);
+  transition:all 0.3s;position:relative;overflow:hidden;
+}
+.hero-stat::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(159,225,203,0.1) 0%,transparent 60%);
+  opacity:0;transition:opacity 0.3s;
+}
+.hero-stat:hover::before{opacity:1;}
+.hero-stat:hover{transform:translateY(-4px);border-color:rgba(159,225,203,0.3);}
+.hero-stat-number{
+  font-family:var(--font-serif);font-size:2.4rem;color:white;
+  line-height:1;margin-bottom:0.3rem;
+}
+.hero-stat-number span{color:var(--teal-light);}
+.hero-stat-label{color:rgba(255,255,255,0.55);font-size:0.78rem;line-height:1.45;}
+
+/* Counter animation */
+.count-up{display:inline;}
+
+/* ═══════════════════════════════════
+   SCROLL INDICATOR
+═══════════════════════════════════ */
+.scroll-indicator{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  z-index:3;display:flex;flex-direction:column;align-items:center;gap:0.4rem;
+  color:rgba(255,255,255,0.4);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;
+  animation:fadeUp 1s 1s ease both;
+}
+.scroll-line{
+  width:1px;height:40px;background:linear-gradient(to bottom,rgba(255,255,255,0.4),transparent);
+  animation:scrollDown 2s ease-in-out infinite;
+}
+@keyframes scrollDown{0%{transform:scaleY(0);transform-origin:top;}50%{transform:scaleY(1);transform-origin:top;}51%{transform:scaleY(1);transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
+
+/* ═══════════════════════════════════
+   MARQUEE / TICKER
+═══════════════════════════════════ */
+.marquee-section{
+  background:var(--teal);overflow:hidden;padding:0.85rem 0;
+  display:flex;white-space:nowrap;
+}
+.marquee-track{
+  display:inline-flex;animation:marquee 28s linear infinite;
+}
+.marquee-item{
+  display:inline-flex;align-items:center;gap:1.5rem;
+  padding:0 2.5rem;font-size:0.8rem;font-weight:600;
+  color:rgba(255,255,255,0.85);letter-spacing:0.04em;text-transform:uppercase;
+}
+.marquee-sep{color:rgba(255,255,255,0.3);font-size:1rem;}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ═══════════════════════════════════
+   SECTIONS
+═══════════════════════════════════ */
+.section{max-width:1100px;margin:0 auto;padding:5rem 2rem;}
+.section-label{
+  font-size:0.72rem;font-weight:600;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--teal);margin-bottom:0.8rem;
+}
+.section-title{
+  font-family:var(--font-serif);font-size:2.5rem;
+  font-weight:400;line-height:1.12;margin-bottom:1rem;letter-spacing:-0.02em;
+}
+.section-sub{color:var(--text-muted);font-size:1rem;line-height:1.7;max-width:600px;margin-bottom:3rem;}
+
+/* Reveal animation */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.65s ease,transform 0.65s ease;}
+.reveal.visible{opacity:1;transform:none;}
+.reveal-delay-1{transition-delay:0.1s;}
+.reveal-delay-2{transition-delay:0.2s;}
+.reveal-delay-3{transition-delay:0.3s;}
+.reveal-delay-4{transition-delay:0.4s;}
+
+/* ═══════════════════════════════════
+   PROBLEM
+═══════════════════════════════════ */
+.problem-bg{background:var(--teal-deep);}
+.problem-bg .section-label{color:var(--teal-light);}
+.problem-bg .section-title{color:white;}
+.problem-bg .section-sub{color:rgba(255,255,255,0.55);}
+.problem-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:2.5rem;}
+.problem-stat{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;padding:2rem 1.5rem;
+  transition:all 0.3s;cursor:default;
+}
+.problem-stat:hover{background:rgba(255,255,255,0.1);transform:translateY(-4px);}
+.problem-stat-num{
+  font-family:var(--font-serif);font-size:3rem;color:var(--teal-light);
+  line-height:1;margin-bottom:0.5rem;
+}
+.problem-stat-label{color:rgba(255,255,255,0.55);font-size:0.87rem;line-height:1.55;}
+
+/* ═══════════════════════════════════
+   MODEL
+═══════════════════════════════════ */
+.model-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;}
+.model-card{
+  background:white;border-radius:18px;border:1px solid var(--border);
+  padding:1.8rem;transition:all 0.3s;position:relative;overflow:hidden;
+}
+.model-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--teal),var(--teal-light));
+  transform:scaleX(0);transform-origin:left;transition:transform 0.3s;
+}
+.model-card:hover::after{transform:scaleX(1);}
+.model-card:hover{box-shadow:0 12px 36px rgba(0,0,0,0.08);transform:translateY(-4px);}
+.model-icon{
+  width:48px;height:48px;border-radius:13px;
+  background:var(--teal-pale);display:flex;align-items:center;
+  justify-content:center;font-size:1.4rem;margin-bottom:1.1rem;
+}
+.model-card h3{font-size:1rem;font-weight:600;margin-bottom:0.5rem;}
+.model-card p{color:var(--text-muted);font-size:0.84rem;line-height:1.65;}
+.results-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.5rem;}
+.result-chip{
+  background:var(--teal-pale);border-radius:14px;padding:1.2rem;text-align:center;
+  transition:all 0.3s;
+}
+.result-chip:hover{background:var(--teal-light);transform:scale(1.02);}
+.result-num{font-family:var(--font-serif);font-size:1.9rem;color:var(--teal-dark);}
+.result-label{font-size:0.77rem;color:var(--text-muted);margin-top:0.2rem;}
+
+/* ═══════════════════════════════════
+   MAP
+═══════════════════════════════════ */
+#map{height:440px;border-radius:18px;border:1px solid var(--border);z-index:1;}
+.location-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.8rem;margin-top:1.5rem;}
+.location-chip{
+  background:white;border:1px solid var(--border);border-radius:11px;
+  padding:0.7rem 1rem;display:flex;align-items:center;gap:0.6rem;
+  font-size:0.83rem;font-weight:500;cursor:pointer;transition:all 0.2s;
+}
+.location-chip:hover{border-color:var(--teal);background:var(--teal-pale);transform:translateX(2px);}
+.location-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+
+/* ═══════════════════════════════════
+   NUMBERS / TRACTION
+═══════════════════════════════════ */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-bottom:2.5rem;}
+.kpi-card{
+  background:white;border-radius:15px;padding:1.5rem;
+  border:1px solid var(--border);transition:all 0.3s;
+}
+.kpi-card:hover{border-color:var(--teal);box-shadow:0 6px 20px rgba(29,158,117,0.12);}
+.kpi-value{font-family:var(--font-serif);font-size:2.1rem;color:var(--teal-dark);line-height:1;margin-bottom:0.3rem;}
+.kpi-label{font-size:0.78rem;color:var(--text-muted);line-height:1.4;}
+.chart-wrap{background:white;border:1px solid var(--border);border-radius:18px;padding:2rem;}
+.chart-title{font-weight:600;font-size:0.9rem;margin-bottom:1.8rem;}
+
+/* Animated bar chart */
+.growth-chart{position:relative;height:220px;display:flex;align-items:flex-end;gap:1rem;}
+.chart-bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.chart-bar{
+  width:100%;border-radius:7px 7px 0 0;background:var(--teal);
+  height:0;transition:height 1.2s cubic-bezier(0.34,1.1,0.64,1);
+}
+.chart-bar.projected{background:var(--teal-light);border:1.5px dashed var(--teal);}
+.chart-bar-label{font-size:0.72rem;color:var(--text-muted);}
+.chart-bar-value{font-size:0.75rem;font-weight:600;color:var(--teal-dark);}
+.chart-legend{display:flex;gap:1.5rem;margin-top:1rem;font-size:0.78rem;color:var(--text-muted);}
+.legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;}
+
+/* ═══════════════════════════════════
+   GROWTH TABLE (PE)
+═══════════════════════════════════ */
+.growth-table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+.growth-table th{
+  text-align:left;padding:0.75rem 1rem;
+  background:var(--gray-light);font-weight:600;font-size:0.78rem;
+  letter-spacing:0.04em;color:var(--text-muted);
+}
+.growth-table th:first-child{border-radius:10px 0 0 10px;}
+.growth-table th:last-child{border-radius:0 10px 10px 0;}
+.growth-table td{padding:0.85rem 1rem;border-bottom:0.5px solid var(--border);font-weight:500;}
+.growth-table tr:last-child td{border-bottom:none;font-weight:700;color:var(--teal-dark);}
+.highlight-row td{background:var(--teal-pale);}
+
+/* ═══════════════════════════════════
+   INVESTMENT
+═══════════════════════════════════ */
+.instrument-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
+.instrument-card{
+  background:white;border:1.5px solid var(--border);border-radius:18px;
+  padding:1.6rem;transition:all 0.3s;
+}
+.instrument-card:hover{border-color:var(--teal);box-shadow:0 8px 28px rgba(29,158,117,0.12);transform:translateY(-3px);}
+.instrument-type{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);margin-bottom:0.8rem;}
+.instrument-title{font-weight:700;font-size:1.05rem;margin-bottom:0.4rem;}
+.instrument-detail{font-size:0.81rem;color:var(--text-muted);line-height:1.65;}
+.use-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;}
+.donut-wrap{display:flex;justify-content:center;}
+.use-items{display:flex;flex-direction:column;gap:1rem;}
+.use-item{display:flex;align-items:center;gap:1rem;}
+.use-color{width:14px;height:14px;border-radius:3px;flex-shrink:0;}
+.use-name{font-weight:500;font-size:0.9rem;flex:1;}
+.use-amount{font-weight:700;color:var(--teal-dark);font-size:0.9rem;}
+.use-pct{font-size:0.78rem;color:var(--text-muted);margin-left:0.5rem;}
+
+/* Donut animation */
+.donut-seg{
+  stroke-dasharray:0 100;
+  transition:stroke-dasharray 1.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ═══════════════════════════════════
+   TEAM
+═══════════════════════════════════ */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+.team-card{
+  background:white;border:1px solid var(--border);border-radius:18px;
+  padding:2rem;text-align:center;transition:all 0.3s;
+}
+.team-card:hover{box-shadow:0 12px 36px rgba(0,0,0,0.08);transform:translateY(-4px);}
+.team-avatar{
+  width:76px;height:76px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal-pale),var(--teal-light));
+  border:3px solid var(--teal-light);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-serif);font-size:1.6rem;color:var(--teal-dark);
+  margin:0 auto 1rem;transition:all 0.3s;
+}
+.team-card:hover .team-avatar{border-color:var(--teal);transform:scale(1.05);}
+.team-name{font-weight:700;font-size:1rem;margin-bottom:0.2rem;}
+.team-role{font-size:0.77rem;color:var(--teal);font-weight:600;margin-bottom:0.6rem;}
+.team-bio{font-size:0.8rem;color:var(--text-muted);line-height:1.6;}
+.advisory-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;margin-top:1.5rem;}
+.advisory-card{
+  background:var(--gray-light);border-radius:14px;padding:1.2rem 1.5rem;
+  display:flex;align-items:center;gap:1rem;transition:all 0.2s;
+}
+.advisory-card:hover{background:var(--teal-pale);}
+.advisory-avatar{
+  width:48px;height:48px;border-radius:50%;background:white;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-serif);font-size:1.1rem;color:var(--gray);flex-shrink:0;
+}
+.advisory-name{font-weight:600;font-size:0.88rem;}
+.advisory-desc{font-size:0.77rem;color:var(--text-muted);line-height:1.4;}
+
+/* ═══════════════════════════════════
+   FAQ
+═══════════════════════════════════ */
+.faq-list{display:flex;flex-direction:column;gap:0.7rem;}
+.faq-item{background:white;border:1px solid var(--border);border-radius:15px;overflow:hidden;transition:border-color 0.2s;}
+.faq-item.open{border-color:var(--teal);}
+.faq-question{
+  padding:1.2rem 1.5rem;font-weight:600;font-size:0.9rem;
+  cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  user-select:none;transition:background 0.15s;
+}
+.faq-question:hover{background:var(--teal-pale);}
+.faq-item.open .faq-question{background:var(--teal-pale);}
+.faq-arrow{font-size:1.1rem;color:var(--teal);transition:transform 0.25s;flex-shrink:0;margin-left:1rem;}
+.faq-item.open .faq-arrow{transform:rotate(180deg);}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.35s ease;}
+.faq-answer-inner{padding:0 1.5rem 1.2rem;color:var(--text-muted);font-size:0.87rem;line-height:1.75;}
+.faq-item.open .faq-answer{max-height:400px;}
+
+/* ═══════════════════════════════════
+   CTA
+═══════════════════════════════════ */
+.cta-section{
+  background:var(--teal-deep);padding:6rem 2rem;text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-section::before{
+  content:'';position:absolute;width:800px;height:800px;border-radius:50%;
+  background:radial-gradient(circle,rgba(29,158,117,0.2) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  animation:pulse 6s ease-in-out infinite;
+}
+.cta-section h2{
+  font-family:var(--font-serif);font-size:2.6rem;color:white;
+  font-weight:400;margin-bottom:1rem;position:relative;z-index:1;
+}
+.cta-section p{color:rgba(255,255,255,0.6);font-size:1rem;margin-bottom:2rem;position:relative;z-index:1;}
+.cta-contacts{
+  display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;
+  margin-bottom:2.5rem;position:relative;z-index:1;
+}
+.cta-contact-name{color:white;font-weight:600;font-size:0.9rem;margin-bottom:0.2rem;}
+.cta-contact-email{color:var(--teal-light);font-size:0.85rem;text-decoration:none;}
+.cta-contact-email:hover{text-decoration:underline;}
+
+/* ═══════════════════════════════════
+   PROFILE VISIBILITY
+═══════════════════════════════════ */
+.hidden-pe,.hidden-ba,.hidden-ff{display:none;}
+body.profile-pe .hidden-pe{display:block;}
+body.profile-ba .hidden-ba{display:block;}
+body.profile-ff .hidden-ff{display:block;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
+
+/* ═══════════════════════════════════
+   PRAXIS BEFORE/AFTER
+═══════════════════════════════════ */
+.before-after{
+  background:white;border:1px solid var(--border);border-radius:18px;padding:2rem;
+  margin-top:2rem;
+}
+.ba-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:1.5rem;align-items:center;}
+.ba-col{border-radius:14px;padding:1.4rem;}
+.ba-col.before{background:var(--gray-light);}
+.ba-col.after{background:var(--teal-pale);}
+.ba-tag{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.9rem;}
+.ba-tag.before{color:var(--gray-mid);}
+.ba-tag.after{color:var(--teal);}
+.ba-row{display:flex;justify-content:space-between;align-items:baseline;
+  font-size:0.84rem;padding:0.35rem 0;border-bottom:0.5px solid rgba(0,0,0,0.06);}
+.ba-row:last-child{border-bottom:none;font-weight:700;font-size:0.9rem;}
+.ba-arrow{font-size:2rem;color:var(--teal);}
+.ba-footnote{font-size:0.76rem;color:var(--text-muted);margin-top:0.8rem;}
+
+/* ═══════════════════════════════════
+   MOBILE
+═══════════════════════════════════ */
+@media(max-width:768px){
+  .hero-content{grid-template-columns:1fr;gap:2.5rem;}
+  .hero h1{font-size:2.3rem;}
+  .problem-stats,.model-grid,.kpi-grid,.team-grid{grid-template-columns:1fr;}
+  .use-grid,.ba-grid,.type-grid{grid-template-columns:1fr;}
+  .instrument-grid{grid-template-columns:1fr;}
+  .advisory-grid,.location-grid{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+  .results-row{grid-template-columns:1fr 1fr;}
+}
+
+/* map popup */
+.leaflet-popup-content-wrapper{border-radius:12px;font-family:var(--font-sans);}
+.map-popup h4{color:var(--teal-dark);font-size:0.9rem;margin-bottom:0.2rem;}
+.map-popup p{font-size:0.8rem;color:var(--text-muted);}
+
+/* ═══════════════════════════════════
+   STANDORT EXPLORER
+═══════════════════════════════════ */
+.explorer-wrap{
+  display:grid;grid-template-columns:1fr 380px;gap:1.5rem;
+  min-height:480px;
+}
+.explorer-map-col{display:flex;flex-direction:column;gap:1rem;}
+#map{height:380px;border-radius:18px;border:1px solid var(--border);z-index:1;flex-shrink:0;}
+.explorer-pills{display:flex;flex-wrap:wrap;gap:0.5rem;}
+.explorer-pill{
+  padding:0.4rem 0.9rem;border-radius:100px;font-size:0.78rem;font-weight:600;
+  border:1.5px solid var(--border);background:white;cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;gap:0.4rem;
+}
+.explorer-pill:hover,.explorer-pill.active{background:var(--teal);color:white;border-color:var(--teal);}
+.explorer-pill .ep-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+.explorer-pill.active .ep-dot,.explorer-pill:hover .ep-dot{background:white;}
+.explorer-pill.planned{border-style:dashed;color:var(--text-muted);}
+.explorer-pill.planned .ep-dot{background:var(--amber);}
+
+.explorer-detail-col{
+  background:var(--gray-light);border-radius:18px;border:1px solid var(--border);
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.explorer-placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;padding:2rem;text-align:center;gap:0.6rem;
+}
+.explorer-placeholder-icon{font-size:2.5rem;opacity:0.3;}
+.explorer-placeholder-text{font-weight:600;color:var(--text-muted);}
+.explorer-placeholder-sub{font-size:0.8rem;color:var(--text-muted);opacity:0.7;}
+
+.loc-detail{display:flex;flex-direction:column;height:100%;animation:fadeUp 0.35s ease;}
+.loc-photo{
+  height:180px;background:var(--teal-pale);
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;flex-shrink:0;position:relative;overflow:hidden;
+}
+.loc-photo img{width:100%;height:100%;object-fit:cover;}
+.loc-photo-placeholder{position:relative;z-index:1;opacity:0.25;}
+.loc-status-badge{
+  position:absolute;top:0.8rem;right:0.8rem;
+  padding:0.25rem 0.7rem;border-radius:100px;font-size:0.7rem;font-weight:700;
+  letter-spacing:0.05em;
+}
+.loc-status-badge.active{background:var(--teal);color:white;}
+.loc-status-badge.planned{background:var(--amber);color:white;}
+.loc-status-badge.signed{background:#3B6D11;color:white;}
+
+.loc-body{padding:1.4rem;flex:1;display:flex;flex-direction:column;gap:1rem;overflow-y:auto;}
+.loc-name{font-weight:700;font-size:1.1rem;margin-bottom:0.1rem;}
+.loc-region{font-size:0.78rem;color:var(--teal);font-weight:600;}
+.loc-desc{font-size:0.83rem;color:var(--text-muted);line-height:1.65;}
+.loc-stats{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
+.loc-stat{background:white;border-radius:10px;padding:0.7rem;text-align:center;}
+.loc-stat-val{font-family:var(--font-serif);font-size:1.3rem;color:var(--teal-dark);}
+.loc-stat-lbl{font-size:0.68rem;color:var(--text-muted);margin-top:0.1rem;}
+.loc-tags{display:flex;flex-wrap:wrap;gap:0.4rem;}
+.loc-tag{
+  background:var(--teal-pale);color:var(--teal-dark);
+  border-radius:6px;padding:0.2rem 0.6rem;font-size:0.73rem;font-weight:600;
+}
+.loc-maps-link{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  font-size:0.78rem;color:var(--teal);text-decoration:none;font-weight:600;
+  margin-top:auto;
+}
+.loc-maps-link:hover{text-decoration:underline;}
+
+@media(max-width:900px){
+  .explorer-wrap{grid-template-columns:1fr;}
+  .explorer-detail-col{min-height:300px;}
+}
+
+/* ═══════════════════════════════════
+   WALKTHROUGH
+═══════════════════════════════════ */
+.wt-nav{
+  display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2rem;
+}
+.wt-nav-btn{
+  padding:0.45rem 1rem;border-radius:100px;font-size:0.78rem;font-weight:600;
+  border:1px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.55);
+  cursor:pointer;transition:all 0.2s;font-family:var(--font-sans);
+}
+.wt-nav-btn.active{background:var(--teal);border-color:var(--teal);color:white;}
+.wt-nav-btn:hover:not(.active){border-color:rgba(255,255,255,0.5);color:white;}
+
+.wt-stage{
+  display:grid;grid-template-columns:1fr 1fr;gap:3rem;
+  align-items:center;min-height:320px;
+}
+.wt-content{color:white;}
+.wt-step-num{
+  font-size:0.72rem;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--teal-light);margin-bottom:0.6rem;
+}
+.wt-step-title{
+  font-family:var(--font-serif);font-size:2rem;color:white;
+  line-height:1.15;margin-bottom:1rem;font-weight:400;
+}
+.wt-step-body{color:rgba(255,255,255,0.65);font-size:0.92rem;line-height:1.75;margin-bottom:1.5rem;}
+.wt-kpis{display:flex;gap:1rem;flex-wrap:wrap;}
+.wt-kpi{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+  border-radius:12px;padding:0.8rem 1.2rem;text-align:center;min-width:90px;
+}
+.wt-kpi-val{font-family:var(--font-serif);font-size:1.5rem;color:var(--teal-light);}
+.wt-kpi-lbl{font-size:0.7rem;color:rgba(255,255,255,0.45);margin-top:0.1rem;}
+
+.wt-visual{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;padding:2rem;display:flex;align-items:center;justify-content:center;
+  min-height:280px;
+}
+.wt-svg-wrap{width:100%;max-width:320px;}
+
+.wt-progress-wrap{
+  height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin:2rem 0 1.5rem;
+}
+.wt-progress-bar{height:100%;background:var(--teal);border-radius:2px;transition:width 0.4s ease;}
+
+.wt-controls{display:flex;align-items:center;justify-content:space-between;}
+.wt-btn{
+  padding:0.6rem 1.4rem;border-radius:10px;font-family:var(--font-sans);
+  font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;
+}
+.wt-btn:hover{background:rgba(255,255,255,0.15);}
+.wt-btn-primary{background:var(--teal);border-color:var(--teal);}
+.wt-btn-primary:hover{background:var(--teal-dark);}
+.wt-dots{display:flex;gap:0.5rem;}
+.wt-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,0.2);transition:all 0.25s;cursor:pointer;
+}
+.wt-dot.active{background:var(--teal-light);transform:scale(1.3);}
+
+@media(max-width:768px){
+  .wt-stage{grid-template-columns:1fr;}
+  .wt-visual{display:none;}
+}
+
+
+/* ═══════════════════════════════════
+   NETWORK PYRAMID
+═══════════════════════════════════ */
+.pyramid-layout{
+  display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;
+}
+.pyramid-col{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+.pyramid-legend{
+  display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;
+}
+.py-leg-item{
+  display:flex;align-items:center;gap:0.5rem;
+  font-size:0.78rem;color:rgba(255,255,255,0.6);cursor:pointer;
+  transition:color 0.2s;
+}
+.py-leg-item:hover{color:var(--teal-light);}
+.py-leg-dot{width:10px;height:10px;border-radius:3px;}
+
+/* Journey */
+.journey-col{display:flex;flex-direction:column;gap:0;}
+.journey-title{
+  font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--teal-light);margin-bottom:1.2rem;
+}
+.journey-steps{display:flex;flex-direction:column;}
+.journey-step{
+  display:flex;gap:1rem;align-items:flex-start;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;padding:1.1rem;transition:all 0.3s;
+}
+.journey-step:hover{background:rgba(255,255,255,0.1);border-color:rgba(29,158,117,0.5);}
+.journey-step.active{background:rgba(29,158,117,0.15);border-color:var(--teal);}
+.js-icon{font-size:1.5rem;flex-shrink:0;margin-top:0.1rem;}
+.js-label{font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--teal-light);margin-bottom:0.2rem;}
+.js-title{font-weight:600;color:white;font-size:0.88rem;margin-bottom:0.3rem;}
+.js-text{font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.6;}
+.journey-connector{display:flex;justify-content:flex-start;padding:0 0 0 2.1rem;height:20px;}
+.jc-line{width:2px;height:100%;background:linear-gradient(to bottom,rgba(29,158,117,0.4),rgba(29,158,117,0.2));margin-left:0.7rem;}
+.journey-callout{
+  margin-top:1.2rem;
+  background:rgba(29,158,117,0.15);border:1px solid rgba(29,158,117,0.3);
+  border-radius:14px;padding:1rem 1.4rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.jcall-num{font-family:var(--font-serif);font-size:2rem;color:var(--teal-light);flex-shrink:0;}
+.jcall-text{font-size:0.82rem;color:rgba(255,255,255,0.65);line-height:1.5;}
+
+@media(max-width:800px){
+  .pyramid-layout{grid-template-columns:1fr;}
+}
+
+
+.mvz-scene-wrap{width:100%;overflow:hidden;}
+#mvz-canvas{display:block;}
+
+
+/* ═══ FLYWHEEL ═══ */
+.flywheel-layout{display:grid;grid-template-columns:1fr 340px;gap:2.5rem;align-items:center;}
+.flywheel-canvas-wrap{display:flex;justify-content:center;}
+.flywheel-detail{
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  border-radius:20px;padding:2rem;min-height:280px;
+  display:flex;flex-direction:column;gap:1rem;transition:all 0.4s;
+}
+.fw-detail-num{
+  font-family:var(--font-serif);font-size:3rem;color:var(--teal-light);
+  line-height:1;opacity:0.4;
+}
+.fw-detail-title{font-family:var(--font-serif);font-size:1.6rem;color:white;font-weight:400;line-height:1.2;}
+.fw-detail-body{color:rgba(255,255,255,0.6);font-size:0.88rem;line-height:1.7;}
+.fw-detail-kpis{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem;}
+.fw-kpi-chip{
+  background:rgba(29,158,117,0.2);border:1px solid rgba(29,158,117,0.3);
+  border-radius:8px;padding:0.3rem 0.7rem;font-size:0.75rem;font-weight:600;color:var(--teal-light);
+}
+
+.flywheel-scale{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
+.fw-scale-label{color:rgba(255,255,255,0.5);font-size:0.8rem;font-weight:600;white-space:nowrap;}
+.fw-scale-track{display:flex;align-items:center;flex:1;gap:0;}
+.fw-scale-item{display:flex;flex-direction:column;align-items:center;gap:0.4rem;min-width:80px;}
+.fw-scale-dot{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.3);transition:all 0.3s;}
+.fw-scale-dot.active{background:var(--teal);border-color:var(--teal-light);box-shadow:0 0 10px rgba(29,158,117,0.5);}
+.fw-scale-text{font-size:0.7rem;color:rgba(255,255,255,0.45);text-align:center;line-height:1.4;}
+.fw-scale-line{flex:1;height:1px;background:linear-gradient(to right,rgba(29,158,117,0.4),rgba(29,158,117,0.2));}
+
+.fw-benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+.fw-benefit{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;padding:1.2rem;display:flex;align-items:center;gap:0.8rem;
+  transition:all 0.2s;
+}
+.fw-benefit:hover{background:rgba(255,255,255,0.1);border-color:rgba(29,158,117,0.4);}
+.fw-benefit-icon{font-size:1.3rem;flex-shrink:0;}
+.fw-benefit-text{color:rgba(255,255,255,0.7);font-size:0.8rem;font-weight:500;line-height:1.4;}
+
+/* ═══ MARKET FAQ ═══ */
+.mfaq-tabs{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.mfaq-tab{
+  padding:0.5rem 1.1rem;border-radius:100px;font-size:0.8rem;font-weight:600;
+  border:1.5px solid var(--border);background:white;color:var(--text-muted);
+  cursor:pointer;transition:all 0.2s;font-family:var(--font-sans);
+}
+.mfaq-tab:hover{border-color:var(--teal);color:var(--teal);}
+.mfaq-tab.active{background:var(--teal);border-color:var(--teal);color:white;}
+
+/* Photo embed instructions */
+/* TO ADD PHOTOS: find the element with id="photo-martin" etc and set:
+   document.getElementById('photo-martin').style.backgroundImage = "url('your-photo.jpg')";
+   OR replace the initials div with: <img src="your-photo.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%"> */
+
+@media(max-width:900px){
+  .flywheel-layout{grid-template-columns:1fr;}
+  .fw-benefits{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:600px){
+  .fw-benefits{grid-template-columns:1fr;}
+  .fw-scale-item{min-width:55px;}
+  .fw-scale-text{font-size:0.6rem;}
+}
+
+
+.mvz-visual-wrap{
+  position:relative;
+  background:rgba(255,255,255,0.04);
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.1);
+  overflow:hidden;
+  padding:0.5rem;
+}
+.fw-steps-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
+  margin-bottom:1.5rem;
+}
+.fw-step-card{
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;padding:1.2rem;
+  cursor:pointer;transition:all 0.2s;
+}
+.fw-step-card:hover{background:rgba(255,255,255,0.12);border-color:rgba(29,158,117,0.4);}
+.fw-step-card.active{background:rgba(29,158,117,0.15);border-color:#1D9E75;}
+.fw-step-num{font-size:1.4rem;font-weight:500;color:var(--teal-light);opacity:0.5;line-height:1;margin-bottom:0.4rem;}
+.fw-step-title{font-size:0.88rem;font-weight:600;color:white;margin-bottom:0.3rem;}
+.fw-step-body{font-size:0.75rem;color:rgba(255,255,255,0.55);line-height:1.55;}
+
+@media(max-width:768px){
+  .fw-steps-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:480px){
+  .fw-steps-grid{grid-template-columns:1fr;}
+}
+
+</style>
+</head>
+<body class="profile-pe">
+
+<!-- ═══════ PASSWORD GATE ═══════ -->
+<div id="gate">
+  <canvas id="gate-canvas"></canvas>
+  <div class="gate-pulse"></div>
+  <div class="gate-inner">
+    <div class="gate-logo-wrap">
+      <div class="gate-logo-mark">SC</div>
+      <div class="gate-wordmark">Smart Care</div>
+    </div>
+    <div class="gate-tagline" data-de="Vertrauliches Investorenportal · Wachstumsrunde 2026" data-en="Confidential Investor Portal · Growth Round 2026">Vertrauliches Investorenportal · Wachstumsrunde 2026</div>
+    <div class="gate-box">
+      <h2 data-de="Zugang" data-en="Access">Zugang</h2>
+      <p data-de="Ausschließlich für eingeladene Investoren." data-en="Exclusively for invited investors.">Ausschließlich für eingeladene Investoren.</p>
+      <input class="gate-input" type="password" id="pw-input" placeholder="Passwort …" autocomplete="off">
+      <div class="gate-error" id="pw-error"></div>
+      <button class="gate-btn" onclick="checkPassword()" data-de="Zugang bestätigen" data-en="Confirm Access">Zugang bestätigen</button>
+    </div>
+    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+      <button onclick="setLang('de')" id="glb-de" style="background:rgba(255,255,255,0.15);border:none;border-radius:6px;padding:0.25rem 0.6rem;color:white;font-size:0.75rem;cursor:pointer;font-family:var(--font-sans);">DE</button>
+      <button onclick="setLang('en')" id="glb-en" style="background:transparent;border:1px solid rgba(255,255,255,0.25);border-radius:6px;padding:0.25rem 0.6rem;color:rgba(255,255,255,0.6);font-size:0.75rem;cursor:pointer;font-family:var(--font-sans);">EN</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ═══════ MAIN APP ═══════ -->
+<div id="app">
+
+<!-- TOP BAR -->
+<nav class="top-bar" id="topbar">
+  <div class="top-logo">
+    <div class="top-logo-mark">SC</div>
+    Smart Care
+  </div>
+  <div class="nav-links">
+    <a href="#problem" data-de="Problem" data-en="Problem">Problem</a>
+    <a href="#model" data-de="Modell" data-en="Model">Modell</a>
+    <a href="#standorte" data-de="Standorte" data-en="Locations">Standorte</a>
+    <a href="#zahlen" data-de="Zahlen" data-en="Numbers">Zahlen</a>
+    <a href="#netzwerk" data-de="Netzwerk" data-en="Network">Netzwerk</a>
+    <a href="#investment" data-de="Investment" data-en="Investment">Investment</a>
+    <a href="#team" data-de="Team" data-en="Team">Team</a>
+    <a href="#faq" data-de="FAQ" data-en="FAQ">FAQ</a>
+  </div>
+  <div class="top-right">
+    <div class="lang-btn">
+      <button id="btn-de" class="active" onclick="setLang('de')">DE</button>
+      <button id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <canvas id="hero-canvas"></canvas>
+  
+<!-- BACKGROUND VIDEO HERO -->
+<video id="hero-video" autoplay muted loop playsinline
+  style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.18;"
+  src="hero-bg.mp4">
+</video>
+  <div class="hero-video-overlay"></div>
+  <div class="hero-content">
+    <div>
+      <div class="hero-badge">
+        <div class="hero-dot"></div>
+        <span data-de="Wachstumsrunde 2026" data-en="Growth Round 2026">Wachstumsrunde 2026</span>
+      </div>
+      <h1 data-de="Gesundheits&shy;versorgung neu <em>gedacht.</em><br>Jetzt skalieren." data-en="Healthcare<br><em>reimagined.</em><br>Scaling now.">Gesundheits&shy;versorgung neu <em>gedacht.</em><br>Jetzt skalieren.</h1>
+      <p class="hero-sub" data-de="Smart Care baut das hybride MVZ-Netzwerk der Zukunft – dort, wo Hausarztversorgung am dringendsten gebraucht wird. Bewährtes Modell. Echte Standorte. Klarer Wachstumspfad." data-en="Smart Care builds the hybrid MVZ network of the future – where primary care is needed most. Proven model. Real locations. Clear growth path.">Smart Care baut das hybride MVZ-Netzwerk der Zukunft – dort, wo Hausarztversorgung am dringendsten gebraucht wird. Bewährtes Modell. Echte Standorte. Klarer Wachstumspfad.</p>
+      <div class="hero-cta">
+        <a href="#investment" class="btn-primary" data-de="Investment-Details" data-en="Investment Details">Investment-Details</a>
+        <a href="#zahlen" class="btn-outline" data-de="Zahlen ansehen" data-en="View Numbers">Zahlen ansehen</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-number"><span class="count-up" data-target="5">0</span><span>+</span></div>
+        <div class="hero-stat-label" data-de="Aktive Standorte in Brandenburg, Sachsen & MV" data-en="Active locations in Brandenburg, Saxony & MV">Aktive Standorte in Brandenburg, Sachsen & MV</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-number">>15<span>k</span></div>
+        <div class="hero-stat-label" data-de="Patientenkontakte pro Jahr" data-en="Patient contacts per year">Patientenkontakte pro Jahr</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-number"><span class="count-up" data-target="20">0</span><span>+</span></div>
+        <div class="hero-stat-label" data-de="Partner in der häuslichen Versorgung deutschlandweit" data-en="Home care partners across Germany">Partner häusliche Versorgung deutschlandweit</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-number"><span class="count-up" data-target="25">0</span><span>+</span></div>
+        <div class="hero-stat-label" data-de="Mitarbeitende im Netzwerk" data-en="Employees across the network">Mitarbeitende im Netzwerk</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <span data-de="Scroll" data-en="Scroll">Scroll</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marquee-track">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem-bg" id="problem">
+  <div class="section">
+    <div class="section-label reveal" data-de="Das Problem" data-en="The Problem">Das Problem</div>
+    <h2 class="section-title reveal reveal-delay-1" data-de="Ein System am Limit." data-en="A system at its limits.">Ein System am Limit.</h2>
+    <p class="section-sub reveal reveal-delay-2" data-de="Die ambulante Versorgung in Deutschland bricht strukturell zusammen. Für Investoren ist das eine generationale Chance." data-en="Ambulatory care in Germany is structurally collapsing. For investors, this is a generational opportunity.">Die ambulante Versorgung in Deutschland bricht strukturell zusammen. Für Investoren ist das eine generationale Chance.</p>
+    <div class="problem-stats">
+      <div class="problem-stat reveal reveal-delay-1">
+        <div class="problem-stat-num">5.000</div>
+        <div class="problem-stat-label" data-de="unbesetzte Hausarztpraxen in Deutschland – Tendenz stark steigend bis 2035" data-en="vacant general practices in Germany – trending sharply upward to 2035">unbesetzte Hausarztpraxen in Deutschland – Tendenz stark steigend bis 2035</div>
+      </div>
+      <div class="problem-stat reveal reveal-delay-2">
+        <div class="problem-stat-num">17,5 Mio.</div>
+        <div class="problem-stat-label" data-de="Menschen in unterversorgten Regionen ohne absehbare Lösung" data-en="people in underserved regions without a foreseeable solution">Menschen in unterversorgten Regionen ohne absehbare Lösung</div>
+      </div>
+      <div class="problem-stat reveal reveal-delay-3">
+        <div class="problem-stat-num">1 von 4</div>
+        <div class="problem-stat-label" data-de="Ärzt:innen geht in den nächsten 5 Jahren in Rente – meist ohne Nachfolge" data-en="doctors retire in the next 5 years – mostly without successors">Ärzt:innen geht in den nächsten 5 Jahren in Rente – meist ohne Nachfolge</div>
+      </div>
+    </div>
+    <div class="hidden-pe reveal" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:1.5rem;color:rgba(255,255,255,0.72);font-size:0.87rem;line-height:1.75;">
+      <strong style="color:var(--teal-light);" data-de="Marktpotenzial bis 2035:" data-en="Market potential by 2035:">Marktpotenzial bis 2035:</strong>
+      <span data-de=" Über 11.000 unbesetzte Praxen mit adressierbarem Marktvolumen von 3,3 Mrd. €. Smart Care positioniert sich im attraktivsten Segment: hybride Primärversorgung mit fachärztlicher Erweiterung und digitalem Plattformpotenzial." data-en=" Over 11,000 vacant practices with an addressable market volume of €3.3B. Smart Care positions itself in the most attractive segment: hybrid primary care with specialist extension and digital platform potential."> Über 11.000 unbesetzte Praxen mit adressierbarem Marktvolumen von 3,3 Mrd. €. Smart Care positioniert sich im attraktivsten Segment: hybride Primärversorgung mit fachärztlicher Erweiterung und digitalem Plattformpotenzial.</span>
+    </div>
+  </div>
+</section>
+
+<!-- MODEL -->
+<section id="model" style="background:#f7f9f7;">
+  <div class="section">
+    <div class="section-label reveal" data-de="Unser Modell" data-en="Our Model">Unser Modell</div>
+    <h2 class="section-title reveal reveal-delay-1" data-de="Hybride Versorgung, die skaliert." data-en="Hybrid care that scales.">Hybride Versorgung, die skaliert.</h2>
+    <p class="section-sub reveal reveal-delay-2" data-de="Das Smart Care MVZ verbindet physische Präsenz mit digitaler Reichweite – mehr Patienten, niedrigere Kosten, schnelleres Wachstum." data-en="The Smart Care MVZ combines physical presence with digital reach – more patients, lower costs, faster growth.">Das Smart Care MVZ verbindet physische Präsenz mit digitaler Reichweite – mehr Patienten, niedrigere Kosten, schnelleres Wachstum.</p>
+    <!-- ANIMATED MVZ SCENE -->
+    <div class="mvz-scene-wrap reveal">
+      <canvas id="mvz-canvas" width="1000" height="420" style="width:100%;border-radius:16px;border:1px solid var(--border);background:#f0faf6;"></canvas>
+    </div>
+
+    <!-- Stats below scene -->
+    <div class="results-row" style="margin-top:1.5rem;">
+      <div class="result-chip reveal reveal-delay-1">
+        <div class="result-num" id="rs-num0">+0%</div>
+        <div class="result-label" data-de="Patientenkapazität pro Standort" data-en="Patient capacity per location">Patientenkapazität pro Standort</div>
+      </div>
+      <div class="result-chip reveal reveal-delay-2">
+        <div class="result-num" id="rs-num1">0 km</div>
+        <div class="result-label" data-de="Versorgungsreichweite hybrid" data-en="Hybrid care reach">Versorgungsreichweite hybrid</div>
+      </div>
+      <div class="result-chip reveal reveal-delay-3">
+        <div class="result-num" id="rs-num2">0%</div>
+        <div class="result-label" data-de="Betriebskosten vs. klassischem MVZ" data-en="Operating costs vs. classic MVZ">Betriebskosten vs. klassischem MVZ</div>
+      </div>
+    </div>
+
+    <!-- Model cards below -->
+    <div class="model-grid" style="margin-top:1.5rem;">
+      <div class="model-card reveal reveal-delay-1">
+        <div class="model-icon">🏥</div>
+        <h3 data-de="Lokale Teams vor Ort" data-en="Local Teams On-Site">Lokale Teams vor Ort</h3>
+        <p data-de="Qualifizierte Pflegefachkräfte führen Diagnostik durch und betreuen Patienten direkt. 50% der Versorgung physisch." data-en="Qualified nursing staff perform diagnostics and care for patients directly. 50% of care is physical.">Qualifizierte Pflegefachkräfte führen Diagnostik durch und betreuen Patienten direkt. 50% der Versorgung physisch.</p>
+      </div>
+      <div class="model-card reveal reveal-delay-2">
+        <div class="model-icon">💻</div>
+        <h3 data-de="Virtueller Facharzt-Hub" data-en="Virtual Specialist Hub">Virtueller Facharzt-Hub</h3>
+        <p data-de="Fachärzte werden digital in den Versorgungspfad eingebunden – neue Leistungen und Erlösquellen ohne Mehrinfrastruktur." data-en="Specialists integrated digitally into the care pathway – new services and revenue streams without additional infrastructure.">Fachärzte werden digital in den Versorgungspfad eingebunden – neue Leistungen und Erlösquellen ohne Mehrinfrastruktur.</p>
+      </div>
+      <div class="model-card reveal reveal-delay-3">
+        <div class="model-icon">🤖</div>
+        <h3 data-de="KI-gestützte Plattform" data-en="AI-Powered Platform">KI-gestützte Plattform</h3>
+        <p data-de="Automatisierte Abläufe, digitale Dokumentation, KI-Optimierung – zentral für alle Standorte gebündelt." data-en="Automated workflows, digital documentation, AI optimization – centrally bundled for all locations.">Automatisierte Abläufe, digitale Dokumentation, KI-Optimierung – zentral für alle Standorte gebündelt.</p>
+      </div>
+    </div>
+    <div class="before-after hidden-pe reveal">
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:1.2rem;" data-de="Praxisübernahme: Vor & Nachher (12–18 Monate)" data-en="Practice Acquisition: Before & After (12–18 months)">Praxisübernahme: Vor & Nachher (12–18 Monate)</div>
+      <div class="ba-grid">
+        <div class="ba-col before">
+          <div class="ba-tag before" data-de="VORHER" data-en="BEFORE">VORHER</div>
+          <div class="ba-row"><span data-de="Patienten/Quartal" data-en="Patients/quarter">Patienten/Quartal</span><strong>870</strong></div>
+          <div class="ba-row"><span data-de="Umsatz/Patient" data-en="Revenue/patient">Umsatz/Patient</span><strong>56 €</strong></div>
+          <div class="ba-row"><span data-de="Jahresumsatz" data-en="Annual revenue">Jahresumsatz</span><strong>195.000 €</strong></div>
+          <div class="ba-row"><span data-de="Marge/Jahr" data-en="Margin/year">Marge/Jahr</span><strong style="color:#E24B4A;">5.000 €</strong></div>
+        </div>
+        <div class="ba-arrow">→</div>
+        <div class="ba-col after">
+          <div class="ba-tag after" data-de="NACHHER" data-en="AFTER">NACHHER</div>
+          <div class="ba-row"><span data-de="Patienten/Quartal" data-en="Patients/quarter">Patienten/Quartal</span><strong>1.100</strong></div>
+          <div class="ba-row"><span data-de="Umsatz/Patient" data-en="Revenue/patient">Umsatz/Patient</span><strong>70 €</strong></div>
+          <div class="ba-row"><span data-de="Jahresumsatz" data-en="Annual revenue">Jahresumsatz</span><strong>308.000 €</strong></div>
+          <div class="ba-row"><span data-de="Marge/Jahr*" data-en="Margin/year*">Marge/Jahr*</span><strong style="color:var(--teal-dark);">78.000 €</strong></div>
+        </div>
+      </div>
+      <div class="ba-footnote" data-de="* inkl. Arztgehalt · Margensteigerung >16x in 12–18 Monaten nach Übernahme" data-en="* incl. doctor salary · Margin increase >16x in 12–18 months after acquisition">* inkl. Arztgehalt · Margensteigerung >16x in 12–18 Monaten nach Übernahme</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- NETWORK PYRAMID -->
+<section id="netzwerk" style="background:var(--teal-deep);">
+  <div class="section">
+    <div class="section-label reveal" style="color:var(--teal-light);" data-de="Das Netzwerk" data-en="The Network">Das Netzwerk</div>
+    <h2 class="section-title reveal reveal-delay-1" style="color:white;" data-de="Hausarzt ist der Anker.<br>Fachärzte sind der Hebel." data-en="GP is the anchor.<br>Specialists are the lever.">Hausarzt ist der Anker.<br>Fachärzte sind der Hebel.</h2>
+    <p class="section-sub reveal reveal-delay-2" style="color:rgba(255,255,255,0.55);" data-de="Wir bauen das virtuelle MVZ von unten nach oben: Hausarztpraxen schaffen das Patientenfundament – Fachärzte multiplizieren Erlöse und Reichweite." data-en="We build the virtual MVZ from the ground up: GP practices create the patient foundation – specialists multiply revenue and reach.">Wir bauen das virtuelle MVZ von unten nach oben: Hausarztpraxen schaffen das Patientenfundament – Fachärzte multiplizieren Erlöse und Reichweite.</p>
+
+    <!-- PYRAMID + JOURNEY LAYOUT -->
+    <div class="pyramid-layout reveal">
+
+      <!-- Left: Pyramid SVG -->
+      <div class="pyramid-col">
+        <svg id="pyramid-svg" viewBox="0 0 360 380" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:400px;">
+
+          <!-- Layer 3: Virtual MVZ roof -->
+          <polygon points="180,18 280,90 80,90" fill="rgba(159,225,203,0.18)" stroke="#9FE1CB" stroke-width="1.5" id="py-top" style="cursor:pointer;transition:all 0.3s;"/>
+          <text x="180" y="58" text-anchor="middle" fill="#9FE1CB" font-size="11" font-family="DM Sans" font-weight="600">Virtuelles MVZ</text>
+          <text x="180" y="73" text-anchor="middle" fill="rgba(159,225,203,0.65)" font-size="9" font-family="DM Sans">KI · Plattform · Daten</text>
+
+          <!-- Layer 2: Fachärzte -->
+          <rect x="60" y="102" width="240" height="100" rx="8" fill="rgba(29,158,117,0.2)" stroke="#1D9E75" stroke-width="1.5" id="py-mid" style="cursor:pointer;transition:all 0.3s;"/>
+          <text x="180" y="130" text-anchor="middle" fill="#9FE1CB" font-size="12" font-family="DM Sans" font-weight="600">Fachärztlicher Hub</text>
+          <text x="180" y="149" text-anchor="middle" fill="rgba(159,225,203,0.7)" font-size="9.5" font-family="DM Sans">Pulmologie Schwerin</text>
+          <text x="180" y="164" text-anchor="middle" fill="rgba(159,225,203,0.55)" font-size="9" font-family="DM Sans">Kardiologie · Telemedizin · Remote</text>
+          <text x="180" y="181" text-anchor="middle" fill="rgba(159,225,203,0.45)" font-size="8.5" font-family="DM Sans">+ weitere Fachrichtungen geplant</text>
+
+          <!-- Divider -->
+          <line x1="40" y1="216" x2="320" y2="216" stroke="rgba(255,255,255,0.12)" stroke-width="1" stroke-dasharray="6,4"/>
+
+          <!-- Layer 1: Hausarztpraxen -->
+          <rect x="20" y="228" width="320" height="130" rx="8" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" id="py-base" style="cursor:pointer;transition:all 0.3s;"/>
+          <text x="180" y="252" text-anchor="middle" fill="white" font-size="12" font-family="DM Sans" font-weight="600">Hausarztpraxen – das Fundament</text>
+
+          <!-- Practice dots -->
+          <g id="practice-dots">
+            <circle cx="65"  cy="278" r="14" fill="rgba(29,158,117,0.3)" stroke="#1D9E75" stroke-width="1.2"/>
+            <text x="65"  cy="282" text-anchor="middle" fill="#9FE1CB" font-size="7" font-family="DM Sans" dy="4">NGL</text>
+            <circle cx="105" cy="278" r="14" fill="rgba(29,158,117,0.3)" stroke="#1D9E75" stroke-width="1.2"/>
+            <text x="105" cy="282" text-anchor="middle" fill="#9FE1CB" font-size="7" font-family="DM Sans" dy="4">LUL</text>
+            <circle cx="145" cy="278" r="14" fill="rgba(29,158,117,0.3)" stroke="#1D9E75" stroke-width="1.2"/>
+            <text x="145" cy="282" text-anchor="middle" fill="#9FE1CB" font-size="7" font-family="DM Sans" dy="4">LUF I</text>
+            <circle cx="185" cy="278" r="14" fill="rgba(29,158,117,0.3)" stroke="#1D9E75" stroke-width="1.2"/>
+            <text x="185" cy="282" text-anchor="middle" fill="#9FE1CB" font-size="7" font-family="DM Sans" dy="4">LUF II</text>
+            <circle cx="225" cy="278" r="14" fill="rgba(29,158,117,0.3)" stroke="#1D9E75" stroke-width="1.2"/>
+            <text x="225" cy="282" text-anchor="middle" fill="#9FE1CB" font-size="7" font-family="DM Sans" dy="4">HDA</text>
+            <!-- Pipeline -->
+            <circle cx="275" cy="278" r="14" fill="rgba(186,117,23,0.2)" stroke="#BA7517" stroke-width="1.2" stroke-dasharray="3,2"/>
+            <text x="275" cy="282" text-anchor="middle" fill="#FAC775" font-size="7" font-family="DM Sans" dy="4">HEL</text>
+            <circle cx="315" cy="278" r="14" fill="rgba(59,109,17,0.2)" stroke="#639922" stroke-width="1.2" stroke-dasharray="3,2"/>
+            <text x="315" cy="282" text-anchor="middle" fill="#C0DD97" font-size="6.5" font-family="DM Sans" dy="4">+n</text>
+          </g>
+
+          <!-- Legend row -->
+          <circle cx="55" cy="332" r="5" fill="rgba(29,158,117,0.4)" stroke="#1D9E75" stroke-width="1"/>
+          <text x="65" y="336" fill="rgba(255,255,255,0.5)" font-size="8.5" font-family="DM Sans">Aktiv</text>
+          <circle cx="115" cy="332" r="5" fill="rgba(186,117,23,0.3)" stroke="#BA7517" stroke-width="1"/>
+          <text x="125" y="336" fill="rgba(255,255,255,0.5)" font-size="8.5" font-family="DM Sans">Pipeline</text>
+          <circle cx="185" cy="332" r="5" fill="rgba(59,109,17,0.25)" stroke="#639922" stroke-width="1"/>
+          <text x="195" y="336" fill="rgba(255,255,255,0.5)" font-size="8.5" font-family="DM Sans">Geplant</text>
+
+          <!-- Upward arrows connecting layers -->
+          <line x1="120" y1="220" x2="120" y2="210" stroke="rgba(29,158,117,0.5)" stroke-width="1.5" marker-end="url(#uarr)"/>
+          <line x1="180" y1="220" x2="180" y2="210" stroke="rgba(29,158,117,0.5)" stroke-width="1.5" marker-end="url(#uarr)"/>
+          <line x1="240" y1="220" x2="240" y2="210" stroke="rgba(29,158,117,0.5)" stroke-width="1.5" marker-end="url(#uarr)"/>
+          <line x1="180" y1="100" x2="180" y2="92" stroke="rgba(159,225,203,0.5)" stroke-width="1.5" marker-end="url(#uarr2)"/>
+          <defs>
+            <marker id="uarr" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto">
+              <path d="M0,6 L3,0 L6,6" fill="none" stroke="rgba(29,158,117,0.8)" stroke-width="1.2"/>
+            </marker>
+            <marker id="uarr2" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto">
+              <path d="M0,6 L3,0 L6,6" fill="none" stroke="rgba(159,225,203,0.8)" stroke-width="1.2"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="pyramid-legend">
+          <div class="py-leg-item" onclick="showLayer('base')"><div class="py-leg-dot" style="background:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.3);"></div><span data-de="Hausarztpraxen" data-en="GP Practices">Hausarztpraxen</span></div>
+          <div class="py-leg-item" onclick="showLayer('mid')"><div class="py-leg-dot" style="background:rgba(29,158,117,0.4);border:1px solid #1D9E75;"></div><span data-de="Fachärzte" data-en="Specialists">Fachärzte</span></div>
+          <div class="py-leg-item" onclick="showLayer('top')"><div class="py-leg-dot" style="background:rgba(159,225,203,0.2);border:1px solid #9FE1CB;"></div><span data-de="Virtuelles MVZ" data-en="Virtual MVZ">Virtuelles MVZ</span></div>
+        </div>
+      </div>
+
+      <!-- Right: Patient Journey -->
+      <div class="journey-col">
+        <div class="journey-title" data-de="Patient Journey – Ein Beispiel" data-en="Patient Journey – An Example">Patient Journey – Ein Beispiel</div>
+
+        <div class="journey-steps" id="journey-steps">
+          <div class="journey-step" data-step="0">
+            <div class="js-icon">🏥</div>
+            <div class="js-content">
+              <div class="js-label" data-de="Schritt 1" data-en="Step 1">Schritt 1</div>
+              <div class="js-title" data-de="Patient kommt in Heidenau" data-en="Patient visits Heidenau practice">Patient kommt in Heidenau</div>
+              <div class="js-text" data-de="Vor-Ort-Team nimmt auf, führt Erstdiagnostik durch. KI-Plattform unterstützt Dokumentation." data-en="On-site team registers, performs initial diagnostics. AI platform supports documentation.">Vor-Ort-Team nimmt auf, führt Erstdiagnostik durch. KI-Plattform unterstützt Dokumentation.</div>
+            </div>
+          </div>
+          <div class="journey-connector"><div class="jc-line"></div></div>
+
+          <div class="journey-step" data-step="1">
+            <div class="js-icon">🫁</div>
+            <div class="js-content">
+              <div class="js-label" data-de="Schritt 2" data-en="Step 2">Schritt 2</div>
+              <div class="js-title" data-de="Pulmologie-Bedarf erkannt" data-en="Pulmonology need identified">Pulmologie-Bedarf erkannt</div>
+              <div class="js-text" data-de="Kein lokaler Facharzt verfügbar – kein Problem. Smart Care Plattform verbindet direkt mit Praxis Birke in Schwerin." data-en="No local specialist available – no problem. Smart Care platform connects directly with Praxis Birke in Schwerin.">Kein lokaler Facharzt verfügbar – kein Problem. Smart Care Plattform verbindet direkt mit Praxis Birke in Schwerin.</div>
+            </div>
+          </div>
+          <div class="journey-connector"><div class="jc-line"></div></div>
+
+          <div class="journey-step" data-step="2">
+            <div class="js-icon">💻</div>
+            <div class="js-content">
+              <div class="js-label" data-de="Schritt 3" data-en="Step 3">Schritt 3</div>
+              <div class="js-title" data-de="Remote-Termin Schwerin" data-en="Remote appointment Schwerin">Remote-Termin Schwerin</div>
+              <div class="js-text" data-de="Pulmonologe in Schwerin sieht Befunde, führt Video-Konsultation durch. Patient bleibt in Heidenau." data-en="Pulmonologist in Schwerin reviews findings, conducts video consultation. Patient stays in Heidenau.">Pulmonologe in Schwerin sieht Befunde, führt Video-Konsultation durch. Patient bleibt in Heidenau.</div>
+            </div>
+          </div>
+          <div class="journey-connector"><div class="jc-line"></div></div>
+
+          <div class="journey-step" data-step="3">
+            <div class="js-icon">✅</div>
+            <div class="js-content">
+              <div class="js-label" data-de="Ergebnis" data-en="Result">Ergebnis</div>
+              <div class="js-title" data-de="Vollständige Versorgung – ein Netzwerk" data-en="Complete care – one network">Vollständige Versorgung – ein Netzwerk</div>
+              <div class="js-text" data-de="Patient vollständig versorgt ohne Anfahrt. Smart Care rechnet haus- und fachärztliche Leistung ab. Höherer Umsatz pro Patient." data-en="Patient fully cared for without travel. Smart Care bills primary and specialist services. Higher revenue per patient.">Patient vollständig versorgt ohne Anfahrt. Smart Care rechnet haus- und fachärztliche Leistung ab. Höherer Umsatz pro Patient.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue impact callout -->
+        <div class="journey-callout">
+          <div class="jcall-num">+30%</div>
+          <div class="jcall-text" data-de="höherer Umsatz/Patient durch fachärztliche Integration" data-en="higher revenue/patient through specialist integration">höherer Umsatz/Patient durch fachärztliche Integration</div>
+        </div>
+      </div>
+
+    </div><!-- pyramid-layout -->
+  </div>
+</section>
+
+<!-- MAP / STANDORT EXPLORER -->
+<section id="standorte" style="background:white;">
+  <div class="section">
+    <div class="section-label reveal" data-de="Standorte" data-en="Locations">Standorte</div>
+    <h2 class="section-title reveal reveal-delay-1" data-de="Unser Netzwerk wächst." data-en="Our network is growing.">Unser Netzwerk wächst.</h2>
+    <p class="section-sub reveal reveal-delay-2" data-de="Klicke auf einen Standort für Details – Versorgungslage, Kennzahlen und Fotos." data-en="Click a location for details – care situation, metrics and photos.">Klicke auf einen Standort für Details – Versorgungslage, Kennzahlen und Fotos.</p>
+
+    <!-- Explorer Layout -->
+    <div class="explorer-wrap reveal">
+      <div class="explorer-map-col">
+        <div id="map"></div>
+        <!-- Location pills -->
+        <div class="explorer-pills" id="explorer-pills"></div>
+      </div>
+      <div class="explorer-detail-col" id="explorer-detail">
+        <div class="explorer-placeholder">
+          <div class="explorer-placeholder-icon">📍</div>
+          <div class="explorer-placeholder-text" data-de="Standort auswählen" data-en="Select a location">Standort auswählen</div>
+          <div class="explorer-placeholder-sub" data-de="Klicke auf einen Marker oder eine Kachel links" data-en="Click a marker or tile on the left">Klicke auf einen Marker oder eine Kachel links</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ZAHLEN -->
+<section id="zahlen" style="background:var(--gray-light);">
+  <div class="section">
+    <div class="section-label reveal" data-de="Traction & Zahlen" data-en="Traction & Numbers">Traction & Zahlen</div>
+    <h2 class="section-title reveal reveal-delay-1" data-de="Proof of Concept – im echten Betrieb." data-en="Proof of Concept – in real operation.">Proof of Concept – im echten Betrieb.</h2>
+    <p class="section-sub reveal reveal-delay-2" data-de="Profitabel auf Praxisebene, skalierbar in der Struktur, bereit für die nächste Wachstumsphase." data-en="Profitable at practice level, scalable in structure, ready for the next growth phase.">Profitabel auf Praxisebene, skalierbar in der Struktur, bereit für die nächste Wachstumsphase.</p>
+    <div class="kpi-grid">
+      <div class="kpi-card reveal reveal-delay-1"><div class="kpi-value">5+2</div><div class="kpi-label" data-de="Standorte (5 aktiv, 2 in Pipeline)" data-en="Locations (5 active, 2 in pipeline)">Standorte aktiv + Pipeline</div></div>
+      <div class="kpi-card reveal reveal-delay-2"><div class="kpi-value">>15k</div><div class="kpi-label" data-de="Patientenkontakte / Jahr" data-en="Patient contacts / year">Patientenkontakte / Jahr</div></div>
+      <div class="kpi-card reveal reveal-delay-3"><div class="kpi-value">25+</div><div class="kpi-label" data-de="Mitarbeitende" data-en="Employees">Mitarbeitende</div></div>
+      <div class="kpi-card reveal reveal-delay-4"><div class="kpi-value">20+</div><div class="kpi-label" data-de="Partner Häusliche Versorgung" data-en="Home Care Partners">Partner Häusliche Versorgung</div></div>
+    </div>
+    <div class="chart-wrap reveal">
+      <div class="chart-title" data-de="Wachstumspfad 2025–2030 (Praxen)" data-en="Growth path 2025–2030 (Practices)">Wachstumspfad 2025–2030 (Praxen)</div>
+      <div class="growth-chart" id="growthChart"></div>
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:var(--teal);"></span><span data-de="Aktiv / Geplant" data-en="Active / Planned">Aktiv / Geplant</span></span>
+        <span><span class="legend-dot" style="background:var(--teal-light);border:1.5px dashed var(--teal);"></span><span data-de="Projektion" data-en="Projection">Projektion</span></span>
+      </div>
+    </div>
+    <div class="hidden-pe reveal" style="margin-top:2rem;background:white;border-radius:16px;border:1px solid var(--border);overflow:hidden;">
+      <table class="growth-table">
+        <thead><tr>
+          <th data-de="Jahr" data-en="Year">Jahr</th>
+          <th data-de="GP-Praxen" data-en="GP Practices">GP-Praxen</th>
+          <th data-de="Fachärzte" data-en="Specialists">Fachärzte</th>
+          <th data-de="Ø Umsatz/Praxis" data-en="Ø Revenue/Practice">Ø Umsatz/Praxis</th>
+          <th data-de="Ges. Umsatz (Schätzung)" data-en="Total Revenue (est.)">Ges. Umsatz</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>2025</td><td>4</td><td>0</td><td>260k €</td><td>~1,0 Mio. €</td></tr>
+          <tr><td>2026</td><td>6</td><td>1</td><td>~300k €</td><td>~1,9 Mio. €</td></tr>
+          <tr><td>2027</td><td>9</td><td>2</td><td>~350k €</td><td>~3,3 Mio. €</td></tr>
+          <tr><td>2028</td><td>13</td><td>3</td><td>~400k €</td><td>~5,5 Mio. €</td></tr>
+          <tr class="highlight-row"><td>2030</td><td>15+</td><td>3+</td><td>~450k €</td><td>7–8 Mio. €</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- INVESTMENT -->
+<section id="investment" style="background:white;">
+  <div class="section">
+    <div class="section-label reveal" data-de="Investment" data-en="Investment">Investment</div>
+    <h2 class="section-title reveal reveal-delay-1" data-de="Wachstum über Fremdkapital." data-en="Growth through debt capital.">Wachstum über Fremdkapital.</h2>
+    <p class="section-sub reveal reveal-delay-2" data-de="Smart Care skaliert über Praxiszukäufe. Eigenkapital treibt Tech & Team, Fremdkapital finanziert Akquisitionen." data-en="Smart Care scales through practice acquisitions. Equity drives tech & team, debt capital finances acquisitions.">Smart Care skaliert über Praxiszukäufe. Eigenkapital treibt Tech & Team, Fremdkapital finanziert Akquisitionen.</p>
+    <div class="instrument-grid">
+      <div class="instrument-card reveal reveal-delay-1">
+        <div class="instrument-type">PE / Family Office</div>
+        <div class="instrument-title" data-de="Equity" data-en="Equity">Equity</div>
+        <div class="instrument-detail" data-de="Strukturierte Equity-Beteiligung ab 500k €. Lead-Investor-Rolle möglich. Gemeinsame Governance-Gestaltung." data-en="Structured equity participation from €500k. Lead investor role possible. Joint governance structure.">Strukturierte Equity-Beteiligung ab 500k €. Lead-Investor-Rolle möglich. Gemeinsame Governance-Gestaltung.</div>
+      </div>
+      <div class="instrument-card reveal reveal-delay-2">
+        <div class="instrument-type">Business Angel</div>
+        <div class="instrument-title" data-de="Nachrangdarlehen mit Wandeloption" data-en="Subordinated Loan with Conversion Option">Nachrangdarlehen mit Wandeloption</div>
+        <div class="instrument-detail" data-de="Einstieg ab 25.000 €. Wandeloption auf zukünftige Beteiligung zu Vorzugskonditionen. Ideal für Angels mit Healthcare-Know-how." data-en="Entry from €25,000. Conversion option into future equity at preferred terms. Ideal for angels with healthcare expertise.">Einstieg ab 25.000 €. Wandeloption auf zukünftige Beteiligung zu Vorzugskonditionen. Ideal für Angels mit Healthcare-Know-how.</div>
+      </div>
+      <div class="instrument-card reveal reveal-delay-3">
+        <div class="instrument-type">Family & Friends</div>
+        <div class="instrument-title" data-de="Direkt dabei sein" data-en="Be directly involved">Direkt dabei sein</div>
+        <div class="instrument-detail" data-de="Investiere direkt in das Wachstum von Smart Care und in die Gesundheitsversorgung von morgen. Flexible Einstiegsbeträge, transparente Konditionen, persönlicher Kontakt." data-en="Invest directly in Smart Care's growth and the healthcare of tomorrow. Flexible amounts, transparent terms, personal contact.">Investiere direkt in das Wachstum von Smart Care und in die Gesundheitsversorgung von morgen. Flexible Einstiegsbeträge, transparente Konditionen, persönlicher Kontakt.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team" style="background:var(--gray-light);">
+  <div class="section">
+    <div class="section-label reveal" data-de="Team" data-en="Team">Team</div>
+    <h2 class="section-title reveal reveal-delay-1" data-de="Erfahren. Divers. Committed." data-en="Experienced. Diverse. Committed.">Erfahren. Divers. Committed.</h2>
+    <div class="team-grid">
+      <div class="team-card reveal reveal-delay-1">
+        <div class="team-avatar">ML</div>
+        <div class="team-name">Martin Lehradt</div>
+        <div class="team-role">CEO & COO · Mitgründer</div>
+        <div class="team-bio" data-de="Internationale Healthcare-Operations & digitale Gesundheitskompetenz. Strategische und operative Führung des Netzwerks." data-en="International healthcare operations & digital health expertise. Strategic and operational network leadership.">Internationale Healthcare-Operations & digitale Gesundheitskompetenz. Strategische und operative Führung des Netzwerks.</div>
+      </div>
+      <div class="team-card reveal reveal-delay-2">
+        <div class="team-avatar">JK</div>
+        <div class="team-name">Dr. Janina Kaplan</div>
+        <div class="team-role">CEO & CMO · Mitgründerin</div>
+        <div class="team-bio" data-de="Fachärztin mit Hintergrund im US-amerikanischen öffentlichen Gesundheitswesen. Medizinische Leitung & Qualitätssicherung." data-en="Specialist physician with US public health background. Medical direction & quality assurance.">Fachärztin mit Hintergrund im US-amerikanischen öffentlichen Gesundheitswesen. Medizinische Leitung & Qualitätssicherung.</div>
+      </div>
+      <div class="team-card reveal reveal-delay-3">
+        <div class="team-avatar">CM</div>
+        <div class="team-name">Carsten Micheel</div>
+        <div class="team-role">Interims-CFO</div>
+        <div class="team-bio" data-de="Internationale Healthcare-Finanzen. CFO im Gesundheitswesen weltweit. Finanzstruktur und Investorenrelations." data-en="International healthcare finance. CFO in global healthcare. Financial structure and investor relations.">Internationale Healthcare-Finanzen. CFO im Gesundheitswesen weltweit. Finanzstruktur und Investorenrelations.</div>
+      </div>
+    </div>
+    <div style="margin-top:2.5rem;">
+      <div class="reveal" style="font-weight:700;font-size:0.9rem;margin-bottom:1rem;" data-de="Beirat" data-en="Advisory Board">Beirat</div>
+      <div class="advisory-grid">
+        <div class="advisory-card reveal reveal-delay-1">
+          <div class="advisory-avatar">HM</div>
+          <div><div class="advisory-name">Holger Micheel-Sprenger</div><div class="advisory-desc" data-de="Beiratsmitglied – Strategie. 25+ Jahre Healthcare-Investment-Erfahrung." data-en="Advisory board – Strategy. 25+ years healthcare investment experience.">Beiratsmitglied – Strategie. 25+ Jahre Healthcare-Investment-Erfahrung.</div></div>
+        </div>
+        <div class="advisory-card reveal reveal-delay-2">
+          <div class="advisory-avatar">CT</div>
+          <div><div class="advisory-name">Dr. Cyril Toma</div><div class="advisory-desc" data-de="Beiratsmitglied – Medizin. Internationaler Healthcare-Manager & Systemoptimierer." data-en="Advisory board – Medicine. International healthcare manager & system optimizer.">Beiratsmitglied – Medizin. Internationaler Healthcare-Manager & Systemoptimierer.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background:white;">
+  <div class="section">
+    <div class="section-label reveal" data-de="Häufige Fragen" data-en="Frequently Asked Questions">Häufige Fragen</div>
+    <h2 class="section-title reveal reveal-delay-1" data-de="Ihre Fragen, beantwortet." data-en="Your questions, answered.">Ihre Fragen, beantwortet.</h2>
+    <div class="faq-list reveal reveal-delay-2" id="faq-list"></div>
+  </div>
+</section>
+
+<!-- CTA -->
+
+<!-- MARKET FAQ -->
+<section id="marktfaq" style="background:var(--gray-light);">
+  <div class="section">
+    <div class="section-label reveal" data-de="Markt & Hintergrund" data-en="Market & Background">Markt & Hintergrund</div>
+    <h2 class="section-title reveal reveal-delay-1" data-de="Die häufigsten Fragen zum Markt." data-en="The most common market questions.">Die häufigsten Fragen zum Markt.</h2>
+    <p class="section-sub reveal reveal-delay-2" data-de="Diese Fragen stellen sich Menschen täglich – und zeigen genau, warum Smart Care gebraucht wird." data-en="These are questions people ask every day – and they show exactly why Smart Care is needed.">Diese Fragen stellen sich Menschen täglich – und zeigen genau, warum Smart Care gebraucht wird.</p>
+
+    <!-- Category tabs -->
+    <div class="mfaq-tabs reveal" id="mfaq-tabs">
+      <button class="mfaq-tab active" onclick="mfaqTab('hausarzt')" data-de="Hausarzt & Versorgung" data-en="GP & Care">Hausarzt & Versorgung</button>
+      <button class="mfaq-tab" onclick="mfaqTab('mvz')" data-de="MVZ & Modell" data-en="MVZ & Model">MVZ & Modell</button>
+      <button class="mfaq-tab" onclick="mfaqTab('digital')" data-de="Telemedizin & Digital" data-en="Telemedicine & Digital">Telemedizin & Digital</button>
+      <button class="mfaq-tab" onclick="mfaqTab('system')" data-de="Gesundheitssystem" data-en="Healthcare System">Gesundheitssystem</button>
+    </div>
+
+    <div class="faq-list reveal reveal-delay-1" id="mfaq-list"></div>
+  </div>
+</section>
+
+<section class="cta-section" id="kontakt">
+  <h2 data-de="Lass uns die Gesundheitsversorgung<br>von morgen gemeinsam machen." data-en="Let's build tomorrow's<br>healthcare together.">Lass uns die Gesundheitsversorgung<br>von morgen gemeinsam machen.</h2>
+  <p data-de="Termin vereinbaren oder direkt Kontakt aufnehmen." data-en="Schedule a meeting or reach out directly.">Termin vereinbaren oder direkt Kontakt aufnehmen.</p>
+  <div class="cta-contacts">
+    <div><div class="cta-contact-name">Martin Lehradt</div><a class="cta-contact-email" href="mailto:m.lehradt@smartcarehealth.de">m.lehradt@smartcarehealth.de</a></div>
+    <div><div class="cta-contact-name">Dr. Janina Kaplan</div><a class="cta-contact-email" href="mailto:j.kaplan@smartcarehealth.de">j.kaplan@smartcarehealth.de</a></div>
+  </div>
+  <button onclick="openContact()" class="btn-primary" style="position:relative;z-index:1;border:none;cursor:pointer;" data-de="Termin vereinbaren →" data-en="Schedule a meeting →">Termin vereinbaren →</button>
+</section>
+
+
+<!-- CONTACT MODAL -->
+<div id="contact-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(4,52,44,0.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:24px;padding:2.5rem;width:480px;max-width:94vw;position:relative;animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
+    <button onclick="closeContact()" style="position:absolute;top:1.2rem;right:1.2rem;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1;">×</button>
+    <div style="font-family:'DM Serif Display',serif;font-size:1.6rem;margin-bottom:0.3rem;color:#04342C;">Kontakt aufnehmen</div>
+    <div style="font-size:0.85rem;color:#888;margin-bottom:1.8rem;" data-de="Wir melden uns innerhalb von 24 Stunden." data-en="We'll get back to you within 24 hours.">Wir melden uns innerhalb von 24 Stunden.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.8rem;">
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:#5a5a5a;display:block;margin-bottom:0.3rem;" data-de="Vorname" data-en="First name">Vorname</label>
+        <input id="c-fname" type="text" placeholder="Max" style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid #e0e0e0;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#1D9E75'" onblur="this.style.borderColor='#e0e0e0'">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:#5a5a5a;display:block;margin-bottom:0.3rem;" data-de="Nachname" data-en="Last name">Nachname</label>
+        <input id="c-lname" type="text" placeholder="Mustermann" style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid #e0e0e0;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#1D9E75'" onblur="this.style.borderColor='#e0e0e0'">
+      </div>
+    </div>
+    <div style="margin-bottom:0.8rem;">
+      <label style="font-size:0.75rem;font-weight:600;color:#5a5a5a;display:block;margin-bottom:0.3rem;" data-de="E-Mail-Adresse" data-en="Email address">E-Mail-Adresse</label>
+      <input id="c-email" type="email" placeholder="max@beispiel.de" style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid #e0e0e0;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#1D9E75'" onblur="this.style.borderColor='#e0e0e0'">
+    </div>
+    <div style="margin-bottom:1.2rem;">
+      <label style="font-size:0.75rem;font-weight:600;color:#5a5a5a;display:block;margin-bottom:0.3rem;" data-de="Nachricht" data-en="Message">Nachricht</label>
+      <textarea id="c-msg" rows="4" placeholder="Ich interessiere mich für eine Investition in Smart Care …" style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid #e0e0e0;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;transition:border-color 0.2s;" onfocus="this.style.borderColor='#1D9E75'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+    </div>
+    <button onclick="submitContact()" style="width:100%;padding:0.9rem;background:#1D9E75;color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#0F6E56'" onmouseout="this.style.background='#1D9E75'" data-de="Nachricht senden" data-en="Send message">Nachricht senden</button>
+    <div id="c-success" style="display:none;margin-top:1rem;text-align:center;color:#1D9E75;font-weight:600;font-size:0.9rem;" data-de="✓ Vielen Dank! Wir melden uns bald." data-en="✓ Thank you! We will be in touch soon.">✓ Vielen Dank! Wir melden uns bald.</div>
+    <div id="c-error" style="display:none;margin-top:0.8rem;text-align:center;color:#E24B4A;font-size:0.83rem;"></div>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+// ═══ STATE ═══
+const PASSWORDS = ['djgn-hytj-147', 'liha-sngd-966', 'ecvp-b2yz-078', 'cusc-tajq-655', 'yrew-do83-357', 'jrvu-yiox-728', 'pxbd-lksz-418', 'msws-i6rs-165', 'ddfa-9k0s-591', 'dpwg-4cmf-551', 'hfri-yxye-261', 'mfzd-q8db-935', 'ksvo-qlqp-475', 'donk-90wm-275', 'madw-qeu4-080', 'snaq-8lc7-979', 'stvb-twcf-249', 'zwen-4au3-135', 'ziug-ef9e-524', 'pvxi-duqn-244', 'rhef-vffg-774', 'bzhk-23gt-077', 'gjsj-v38v-406', 'ohko-n4gg-946', 'blto-a83s-943'];
+// Tracking webhook – replace WEBHOOK_URL with your Google Apps Script URL
+const TRACKING_WEBHOOK = 'WEBHOOK_URL';
+
+function trackLogin(pw){
+  if(TRACKING_WEBHOOK === 'WEBHOOK_URL') return; // not configured yet
+  const data = {
+    passwort: pw,
+    zeitpunkt: new Date().toLocaleString('de-DE', {timeZone:'Europe/Berlin'}),
+    geraet: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobil' : 'Desktop',
+    browser: navigator.userAgent.split(') ')[0].split('(')[1] || 'Unbekannt',
+    sprache: navigator.language || 'de'
+  };
+  // Silent beacon – user notices nothing
+  fetch(TRACKING_WEBHOOK, {
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  }).catch(()=>{}); // fail silently
+}
+let lang = 'de', profile = null;
+
+// ═══ GATE CANVAS – floating particles ═══
+(function(){
+  const c = document.getElementById('gate-canvas');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  let W,H,particles=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize(); window.addEventListener('resize',resize);
+  for(let i=0;i<80;i++) particles.push({
+    x:Math.random()*2000,y:Math.random()*1200,
+    vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,
+    r:Math.random()*2+0.5,a:Math.random()*0.5+0.1
+  });
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(159,225,203,${p.a})`;ctx.fill();
+    });
+    // Draw connections
+    particles.forEach((a,i)=>{
+      particles.slice(i+1).forEach(b=>{
+        const d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<120){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+          ctx.strokeStyle=`rgba(159,225,203,${0.15*(1-d/120)})`;ctx.lineWidth=0.5;ctx.stroke();}
+      });
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ═══ HERO CANVAS – animated gradient orbs ═══
+function initHeroCanvas(){
+  const c = document.getElementById('hero-canvas');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  let W,H,t=0;
+  function resize(){W=c.width=c.parentElement.offsetWidth;H=c.height=c.parentElement.offsetHeight;}
+  resize(); window.addEventListener('resize',resize);
+  const orbs=[
+    {x:0.7,y:0.2,r:0.4,color:'rgba(29,158,117,0.18)'},
+    {x:0.2,y:0.7,r:0.35,color:'rgba(9,225,203,0.1)'},
+    {x:0.85,y:0.75,r:0.3,color:'rgba(159,225,203,0.12)'},
+  ];
+  function draw(){
+    t+=0.005;
+    ctx.clearRect(0,0,W,H);
+    orbs.forEach((o,i)=>{
+      const ox=W*(o.x+Math.sin(t+i*1.3)*0.06);
+      const oy=H*(o.y+Math.cos(t+i*0.9)*0.06);
+      const g=ctx.createRadialGradient(ox,oy,0,ox,oy,W*o.r);
+      g.addColorStop(0,o.color); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ═══ PASSWORD ═══
+function checkPassword(){
+  const v=document.getElementById('pw-input').value.trim().toLowerCase();
+  const matched = PASSWORDS.find(p => p === v);
+  if(matched){
+    trackLogin(matched);
+    document.getElementById('gate').style.opacity='0';
+    document.getElementById('gate').style.transition='opacity 0.5s';
+    setTimeout(()=>{
+      document.getElementById('gate').style.display='none';
+      document.getElementById('app').style.display='block';
+      setProfile('pe');
+    },500);
+  } else {
+    const e=document.getElementById('pw-error');
+    e.textContent=lang==='de'?'Falsches Passwort.':'Incorrect password.';
+    document.getElementById('pw-input').value='';
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
+
+// ═══ PROFILE ═══
+function setProfile(p){
+  profile=p;
+  document.body.className='profile-'+p;
+  
+  renderFAQ(); renderGrowthChart(); renderWalkthrough();
+  initHeroCanvas();
+  setTimeout(initMap,100);
+  initScrollReveal();
+  initTopbar();
+  initCounters();
+  renderMarquee();
+}
+
+// ═══ LANGUAGE ═══
+function setLang(l){
+  lang=l;
+  ['btn-de','btn-en'].forEach(id=>document.getElementById(id)?.classList.toggle('active',id.endsWith(l)));
+  ['glb-de','glb-en'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(!b) return;
+    if(id.endsWith(l)){b.style.background='rgba(255,255,255,0.25)';}
+    else{b.style.background='transparent';}
+  });
+  document.querySelectorAll('[data-de]').forEach(el=>{
+    const t=el.getAttribute('data-'+l);
+    if(t) el.innerHTML=t;
+  });
+  if(profile) renderFAQ(); if(typeof renderMFAQ !== 'undefined') renderMFAQ();
+}
+
+// ═══ TOPBAR SCROLL ═══
+function initTopbar(){
+  const bar=document.getElementById('topbar');
+  window.addEventListener('scroll',()=>{
+    bar.classList.toggle('scrolled',window.scrollY>60);
+  });
+}
+
+// ═══ COUNTER ANIMATION ═══
+function initCounters(){
+  document.querySelectorAll('.count-up').forEach(el=>{
+    const target=+el.dataset.target, dur=1500, start=performance.now();
+    function step(now){
+      const p=Math.min((now-start)/dur,1);
+      el.textContent=Math.round(p*target);
+      if(p<1) requestAnimationFrame(step);
+    }
+    setTimeout(()=>requestAnimationFrame(step),400);
+  });
+}
+
+// ═══ MARQUEE ═══
+function renderMarquee(){
+  const items=[
+    {de:'5 Aktive Standorte',en:'5 Active Locations'},
+    {de:'Wachstumsrunde 2026',en:'Growth Round 2026'},
+    {de:'>15.000 Patientenkontakte / Jahr',en:'>15,000 Patient Contacts / Year'},
+    {de:'Brandenburg · Sachsen · MV',en:'Brandenburg · Saxony · MV'},
+    {de:'Hybrides MVZ-Modell',en:'Hybrid MVZ Model'},
+    {de:'20+ Häusliche Versorgungspartner',en:'20+ Home Care Partners'},
+    {de:'Break-even in 4 Quartalen',en:'Break-even in 4 Quarters'},
+    {de:'Access to care everywhere',en:'Access to care everywhere'},
+  ];
+  const double=[...items,...items];
+  const track=document.getElementById('marquee-track');
+  track.innerHTML=double.map(i=>`
+    <div class="marquee-item">
+      <span>${i[lang]}</span><span class="marquee-sep">·</span>
+    </div>`).join('');
+}
+
+// ═══ SCROLL REVEAL ═══
+function initScrollReveal(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('visible');
+        // Re-init flywheel if canvas is empty
+        const fw = document.getElementById('flywheel-canvas');
+        if(fw && fw.closest('#flywheel') && fw.width === 0){
+          initFlywheelCanvas();
+        }
+      }
+    });
+  },{threshold:0.05});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+}
+
+// ═══ STANDORT EXPLORER ═══
+const LOCATIONS = [
+  {
+    id:'neustadt', name:'Neustadt-Glewe', short:'Neustadt-Glewe',
+    lat:53.555, lng:11.593, region:'Mecklenburg-Vorpommern', regionShort:'MV',
+    planned:false,
+    mapsUrl:'https://maps.google.com/?q=Neustadt-Glewe+Mecklenburg',
+    photo:null, photoEmoji:'🏘️',
+    stats:[
+      {val:'Aktiv',lbl:{de:'Status',en:'Status'}},
+      {val:'Hybrid',lbl:{de:'Versorgungsmodell',en:'Care Model'}},
+      {val:'MV',lbl:{de:'Bundesland',en:'State'}},
+      {val:'Hausärztlich',lbl:{de:'Fachrichtung',en:'Specialty'}},
+    ],
+    tags:{de:['Hausärztlich','Hybrid','MV-Kernregion'],en:['General Practice','Hybrid','MV Core Region']},
+    desc:{
+      de:'Einer der ersten Smart Care Standorte in ländlicher MV-Region mit unterdurchschnittlicher Arztdichte. Vollständig in die digitale Plattform integriert. Klassisches Smart-Care-Akquisitionsprofil.',
+      en:'One of the first Smart Care locations in a rural MV region with below-average physician density. Fully integrated into the digital platform. Classic Smart Care acquisition profile.'
+    }
+  },
+  {
+    id:'ludwigslust', name:'Ludwigslust', short:'Ludwigslust',
+    lat:53.324, lng:11.498, region:'Mecklenburg-Vorpommern', regionShort:'MV',
+    planned:false,
+    mapsUrl:'https://maps.google.com/?q=Ludwigslust+Mecklenburg',
+    photo:null, photoEmoji:'🏥',
+    stats:[
+      {val:'Aktiv',lbl:{de:'Status',en:'Status'}},
+      {val:'Hybrid',lbl:{de:'Versorgungsmodell',en:'Care Model'}},
+      {val:'MV',lbl:{de:'Bundesland',en:'State'}},
+      {val:'Hausärztlich',lbl:{de:'Fachrichtung',en:'Specialty'}},
+    ],
+    tags:{de:['Hausärztlich','Hybrid','Westmecklenburg'],en:['General Practice','Hybrid','West Mecklenburg']},
+    desc:{
+      de:'Westmecklenburgische Kleinstadt mit wachsendem Versorgungsdruck. Starke lokale Einbindung und regionale Partnerstruktur in der häuslichen Pflege.',
+      en:'Small West Mecklenburg town with growing care pressure. Strong local integration and regional partnership structure in home care.'
+    }
+  },
+  {
+    id:'ludwigsfelde1', name:'Ludwigsfelde – Praxis 1', short:'Ludwigsfelde I',
+    lat:52.302, lng:13.250, region:'Brandenburg', regionShort:'BB',
+    planned:false,
+    mapsUrl:'https://maps.google.com/?q=Ludwigsfelde+Brandenburg',
+    photo:null, photoEmoji:'🌿',
+    stats:[
+      {val:'Aktiv',lbl:{de:'Status',en:'Status'}},
+      {val:'Hybrid',lbl:{de:'Versorgungsmodell',en:'Care Model'}},
+      {val:'Brandenburg',lbl:{de:'Bundesland',en:'State'}},
+      {val:'Hausärztlich',lbl:{de:'Fachrichtung',en:'Specialty'}},
+    ],
+    tags:{de:['Hausärztlich','Brandenburger Speckgürtel','Berlin-nah'],en:['General Practice','Brandenburg Belt','Near Berlin']},
+    desc:{
+      de:'Erste von zwei Smart Care Praxen in Ludwigsfelde, im Berliner Speckgürtel gelegen. Wachsende Bevölkerung, steigender Versorgungsbedarf. Strategische Brücke zwischen dem ländlichen MV-Netz und Berlin.',
+      en:'First of two Smart Care practices in Ludwigsfelde, located in the Berlin metropolitan belt. Growing population, rising care demand. Strategic bridge between the rural MV network and Berlin.'
+    }
+  },
+  {
+    id:'ludwigsfelde2', name:'Ludwigsfelde – Praxis 2', short:'Ludwigsfelde II',
+    lat:52.304, lng:13.257, region:'Brandenburg', regionShort:'BB',
+    planned:false,
+    mapsUrl:'https://maps.google.com/?q=Ludwigsfelde+Brandenburg',
+    photo:null, photoEmoji:'🏡',
+    stats:[
+      {val:'Aktiv',lbl:{de:'Status',en:'Status'}},
+      {val:'Hybrid',lbl:{de:'Versorgungsmodell',en:'Care Model'}},
+      {val:'Brandenburg',lbl:{de:'Bundesland',en:'State'}},
+      {val:'Hausärztlich',lbl:{de:'Fachrichtung',en:'Specialty'}},
+    ],
+    tags:{de:['Hausärztlich','Brandenburger Speckgürtel','Cluster Ludwigsfelde'],en:['General Practice','Brandenburg Belt','Ludwigsfelde Cluster']},
+    desc:{
+      de:'Zweite Smart Care Praxis in Ludwigsfelde. Geteilte Infrastruktur mit Praxis 1 senkt Overheadkosten und zeigt die Cluster-Skalierungslogik des Netzwerks.',
+      en:'Second Smart Care practice in Ludwigsfelde. Shared infrastructure with Practice 1 reduces overhead costs and demonstrates the cluster scaling logic of the network.'
+    }
+  },
+  {
+    id:'heidenau', name:'Heidenau', short:'Heidenau',
+    lat:50.985, lng:13.860, region:'Sachsen', regionShort:'SN',
+    planned:false,
+    mapsUrl:'https://maps.google.com/?q=Heidenau+Sachsen',
+    photo:null, photoEmoji:'🏙️',
+    stats:[
+      {val:'Aktiv',lbl:{de:'Status',en:'Status'}},
+      {val:'Hybrid',lbl:{de:'Versorgungsmodell',en:'Care Model'}},
+      {val:'Sachsen',lbl:{de:'Bundesland',en:'State'}},
+      {val:'Hausärztlich',lbl:{de:'Fachrichtung',en:'Specialty'}},
+    ],
+    tags:{de:['Hausärztlich','Sachsen','Dresden-Umland'],en:['General Practice','Saxony','Dresden Area']},
+    desc:{
+      de:'Aktiver Standort südlich von Dresden. Beweis des Modells: vollständig integriert, mit Remote-Patient-Monitoring in der Kardiologie als erstem Pilotsystem.',
+      en:'Active location south of Dresden. Model proof: fully integrated, with remote patient monitoring in cardiology as the first pilot system.'
+    }
+  },
+  {
+    id:'schwerin', name:'Schwerin – Praxis Birke', short:'Praxis Birke',
+    lat:53.635, lng:11.401, region:'Mecklenburg-Vorpommern', regionShort:'MV',
+    planned:true,
+    mapsUrl:'https://maps.google.com/?q=Praxis+Birke+Schwerin',
+    photo:null, photoEmoji:'🌲',
+    stats:[
+      {val:'Vertrag ✓',lbl:{de:'Status',en:'Status'}},
+      {val:'Okt. 2026',lbl:{de:'Geplante Eröffnung',en:'Planned Opening'}},
+      {val:'Pulmologie',lbl:{de:'Fachrichtung',en:'Specialty'}},
+      {val:'Schwerin',lbl:{de:'Stadt',en:'City'}},
+    ],
+    tags:{de:['Pulmologie','Fachärztlich','Vertragsunterzeichnet','Okt. 2026'],en:['Pulmonology','Specialist','Contract Signed','Oct. 2026']},
+    desc:{
+      de:'Erster fachärztlicher Smart Care Standort. Vertrag unterzeichnet, Eröffnung geplant für Oktober 2026. Praxis Birke in Schwerin erweitert das Netzwerk in die Pulmologie – ein wichtiger Schritt zur fachärztlichen Erweiterungsstrategie.',
+      en:'First specialist Smart Care location. Contract signed, opening planned for October 2026. Praxis Birke in Schwerin extends the network into pulmonology – an important step in the specialist expansion strategy.'
+    }
+  },
+  {
+    id:'hellersdorf', name:'Berlin-Hellersdorf', short:'Hellersdorf',
+    lat:52.527, lng:13.598, region:'Berlin', regionShort:'BE',
+    planned:true,
+    mapsUrl:'https://maps.google.com/?q=Berlin+Hellersdorf',
+    photo:null, photoEmoji:'🏗️',
+    stats:[
+      {val:'In Planung',lbl:{de:'Status',en:'Status'}},
+      {val:'2026',lbl:{de:'Ziel-Opening',en:'Target Opening'}},
+      {val:'Berlin',lbl:{de:'Markt',en:'Market'}},
+      {val:'Hausärztlich',lbl:{de:'Fachrichtung',en:'Specialty'}},
+    ],
+    tags:{de:['In Planung','Berlin','Urban','§103 SGB V'],en:['Planned','Berlin','Urban','§103 SGB V']},
+    desc:{
+      de:'Erster urbaner Standort in Berlin-Hellersdorf. Kaufvertrag in Vorbereitung. Beweist die Übertragbarkeit des Modells auf städtische Märkte mit hohem Bevölkerungsdruck.',
+      en:'First urban location in Berlin-Hellersdorf. Purchase agreement in preparation. Proves the transferability of the model to urban markets with high population pressure.'
+    }
+  },
+];
+
+let _map=null, mapInit=false, activeLocId=null;
+
+function initMap(){
+  if(mapInit) return; mapInit=true;
+
+  _map=L.map('map',{scrollWheelZoom:false,zoomControl:true}).setView([52.5,13.0],6);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    attribution:'© OpenStreetMap, © CARTO',maxZoom:16
+  }).addTo(_map);
+
+  LOCATIONS.forEach(loc=>{
+    const color=loc.planned?'#BA7517':'#1D9E75';
+    const icon=L.divIcon({className:'',iconSize:[22,22],iconAnchor:[11,11],
+      html:`<div style="width:22px;height:22px;background:${color};border-radius:50%;border:3px solid white;box-shadow:0 3px 10px rgba(0,0,0,0.25);cursor:pointer;transition:transform 0.15s;" id="mpin-${loc.id}"></div>`
+    });
+    const marker=L.marker([loc.lat,loc.lng],{icon}).addTo(_map);
+    marker.on('click',()=>selectLocation(loc.id));
+  });
+
+  renderExplorerPills();
+}
+
+function renderExplorerPills(){
+  const c=document.getElementById('explorer-pills');
+  c.innerHTML=LOCATIONS.map(loc=>`
+    <div class="explorer-pill${loc.planned?' planned':''}" id="pill-${loc.id}" onclick="selectLocation('${loc.id}')">
+      <span class="ep-dot"></span>
+      ${loc.short} <span style="opacity:0.6;font-weight:400;">(${loc.regionShort})</span>
+    </div>`).join('');
+}
+
+function selectLocation(id){
+  const loc=LOCATIONS.find(l=>l.id===id);
+  if(!loc) return;
+
+  // Update active state on pills
+  document.querySelectorAll('.explorer-pill').forEach(p=>p.classList.remove('active'));
+  const pill=document.getElementById('pill-'+id);
+  if(pill) pill.classList.add('active');
+
+  // Fly map
+  if(_map) _map.flyTo([loc.lat,loc.lng],12,{duration:0.8});
+
+  // Render detail panel
+  const det=document.getElementById('explorer-detail');
+  const statsHtml=loc.stats.map(s=>`
+    <div class="loc-stat">
+      <div class="loc-stat-val">${s.val}</div>
+      <div class="loc-stat-lbl">${s.lbl[lang]}</div>
+    </div>`).join('');
+  const tagsHtml=loc.tags[lang].map(t=>`<span class="loc-tag">${t}</span>`).join('');
+  const photoHtml=loc.photo
+    ? `<img src="${loc.photo}" alt="${loc.name}">`
+    : `<div class="loc-photo-placeholder">${loc.photoEmoji}</div>`;
+
+  det.innerHTML=`
+    <div class="loc-detail">
+      <div class="loc-photo">
+        ${photoHtml}
+        <span class="loc-status-badge ${loc.id==='schwerin'?'signed':loc.planned?'planned':'active'}">
+          ${loc.id==='schwerin'?(lang==='de'?'Vertrag unterzeichnet':'Contract Signed'):loc.planned?(lang==='de'?'In Planung':'Planned'):(lang==='de'?'Aktiv':'Active')}
+        </span>
+      </div>
+      <div class="loc-body">
+        <div>
+          <div class="loc-name">${loc.name}</div>
+          <div class="loc-region">${loc.region}</div>
+        </div>
+        <div class="loc-desc">${loc.desc[lang]}</div>
+        <div class="loc-stats">${statsHtml}</div>
+        <div class="loc-tags">${tagsHtml}</div>
+        <a class="loc-maps-link" href="${loc.mapsUrl}" target="_blank">
+          📍 ${lang==='de'?'In Google Maps öffnen':'Open in Google Maps'} ↗
+        </a>
+      </div>
+    </div>`;
+}
+
+// ═══ GROWTH CHART (animated) ═══
+const growthData=[
+  {year:'2025',n:4,actual:true},{year:'2026',n:6,actual:false},
+  {year:'2027',n:9,actual:false},{year:'2028',n:13,actual:false},{year:'2030',n:15,actual:false},
+];
+let chartAnimated=false;
+function renderGrowthChart(){
+  const c=document.getElementById('growthChart');
+  const max=16;
+  c.innerHTML=growthData.map(d=>`
+    <div class="chart-bar-group">
+      <div class="chart-bar-value">${d.n}</div>
+      <div class="chart-bar${d.actual?'':' projected'}" data-h="${(d.n/max)*200}" style="height:0"></div>
+      <div class="chart-bar-label">${d.year}</div>
+    </div>`).join('');
+  setTimeout(()=>{
+    c.querySelectorAll('.chart-bar').forEach((b,i)=>{
+      setTimeout(()=>{b.style.height=b.dataset.h+'px';},i*120);
+    });
+  },400);
+}
+
+// ═══ DONUT (SVG animated) ═══
+const funds=[
+  {de:'Akquisition 20+ Praxen',en:'Acquisition 20+ Practices',pct:67,amount:'2 Mio. €',color:'#1D9E75'},
+  {de:'App & Software',en:'App & Software',pct:13,amount:'400k €',color:'#5DCAA5'},
+  {de:'KI-Funktionalitäten',en:'AI Functionalities',pct:7,amount:'200k €',color:'#9FE1CB'},
+  {de:'Personal & Recruiting',en:'Personnel & Recruiting',pct:7,amount:'200k €',color:'#FAEEDA'},
+  {de:'Business Development',en:'Business Development',pct:6,amount:'200k €',color:'#BA7517'},
+];
+function renderDonut(){
+  const svg=document.getElementById('donut');
+  const cx=120,cy=120,r=90,inner=56;
+  let start=-Math.PI/2, paths='';
+  funds.forEach(seg=>{
+    const a=(seg.pct/100)*2*Math.PI, end=start+a;
+    const x1=cx+r*Math.cos(start),y1=cy+r*Math.sin(start);
+    const x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end);
+    const ix1=cx+inner*Math.cos(end),iy1=cy+inner*Math.sin(end);
+    const ix2=cx+inner*Math.cos(start),iy2=cy+inner*Math.sin(start);
+    const lg=a>Math.PI?1:0;
+    paths+=`<path d="M${x1},${y1} A${r},${r} 0 ${lg} 1 ${x2},${y2} L${ix1},${iy1} A${inner},${inner} 0 ${lg} 0 ${ix2},${iy2} Z" fill="${seg.color}"/>`;
+    start=end;
+  });
+  paths+=`<text x="${cx}" y="${cy-6}" text-anchor="middle" font-size="11" fill="#888780" font-family="DM Sans">Gesamt</text>`;
+  paths+=`<text x="${cx}" y="${cy+14}" text-anchor="middle" font-size="16" font-weight="600" fill="#0F6E56" font-family="DM Serif Display">3 Mio. €</text>`;
+  svg.innerHTML=paths;
+  document.getElementById('use-items').innerHTML=funds.map(s=>`
+    <div class="use-item">
+      <div class="use-color" style="background:${s.color}"></div>
+      <div class="use-name">${s[lang]}</div>
+      <div class="use-amount">${s.amount}</div>
+      <div class="use-pct">${s.pct}%</div>
+    </div>`).join('');
+}
+
+// ═══ FAQ ═══
+const faqs={
+  pe:{
+    de:[
+      {q:"Wie ist Smart Care rechtlich strukturiert?",a:"Smart Care GmbH ist die Holding. Darunter operieren MVZ Bannewitz GmbH (Sachsen, Brandenburg) und Smart Care Brandenburg GmbH. Alle MVZs sind kassenzugelassen und operieren unter ärztlicher Leitung von Dr. Janina Kaplan gemäß §95 SGB V."},
+      {q:"Welche EBITDA-Margen sind auf Praxisebene realistisch?",a:"Empirisch validiert: Eine übernommene Praxis startet mit 5.000 € Jahresmarge (195k € Umsatz, 190k € Kosten). Nach 12–18 Monaten im Smart-Care-Modell: 78.000 € Marge auf 308.000 € Umsatz – eine Steigerung von über 16x. Bruttomarge ~25%. Die zentrale Plattform senkt Overhead bei Skalierung weiter."},
+      {q:"Wie schnell ist Break-even pro Praxis?",a:"Im bewährten Vier-Stufen-Modell: Q1 initiales Investment (CapEx ~45k€), Q2 Stabilisierung, Q3 Patientensteigerung, Q4 Break-even. Danach wächst das Operating Result kontinuierlich. Dies ist durch unsere bestehenden Praxen empirisch belegt."},
+      {q:"Was sind die finanziellen Wachstumstreiber?",a:"Vier Hebel: 1) Integrierte Fachärzte steigern Bruttomargen um bis zu 15%. 2) Digitale Services senken Kosten um bis zu 40%. 3) Zentrale Infrastruktur reduziert Kosten/Praxis um bis zu 25%. 4) Software- und Plattformleistungen für Partner generieren hochmargige Zusatzerlöse."},
+      {q:"Was ist der Exit-Pfad?",a:"Mittelfristig: strategischer Verkauf an einen größeren MVZ-Betreiber oder Healthcare-PE. Alternativ: Management-Buyout oder Börsennotiz. Bei 18+ Praxen, 7–8 Mio. € Umsatz und 1 Mio. Patientenkontakten (2030) ist das Portfolio für strategische Käufer sehr attraktiv."},
+      {q:"Wie skaliert das Modell bis 2030?",a:"Zielportfolio 2030: 15+ GP-Praxen, 3+ Fachärzte, 7–8 Mio. € Gesamtumsatz, ~450k € Ø Umsatz/Praxis, ~1 Mio. Patientenkontakte p.a. Das Akquisitions-Modell ist standardisiert und wiederholbar – jede neue Praxis folgt demselben 4-Stufen-Pfad zur Profitabilität."},
+      {q:"Regulatorischer Rahmen – Hauptrisiken?",a:"MVZs unterliegen der KV-Zulassung (SGB V). Zulassungsrechte sind handelbar (§103 SGB V). Hauptrisiken: KV-Vergütungsänderungen, Arztrekrutierung. Mitigiert durch Hybrid-Modell, Diversifikation über 3 Bundesländer und aktiven Fördermittelzugang."},
+      {q:"Was ist die aktuelle Gesellschafterstruktur?",a:"Details werden im persönlichen Gespräch mit NDA geteilt. Bitte Termin vereinbaren."}
+    ],
+    en:[
+      {q:"How is Smart Care legally structured?",a:"Smart Care GmbH is the holding company. MVZ Bannewitz GmbH (Saxony, Brandenburg) and Smart Care Brandenburg GmbH operate underneath. All MVZs are health insurance approved under medical direction of Dr. Janina Kaplan per §95 SGB V."},
+      {q:"What EBITDA margins are realistic at practice level?",a:"After 12–18 months, practices achieve ~25% gross margin (€78k on €308k revenue). Central platform costs decrease further as we scale."},
+      {q:"What is the exit path?",a:"Medium-term: strategic sale to a larger MVZ operator or healthcare PE. Alternatively: management buyout or IPO. The MVZ market is structurally driven by undersupply and attractive to strategic buyers."},
+      {q:"What are the growth levers?",a:"1) Standardized practice acquisition (4-step process), 2) Digital integration for cost reduction, 3) Specialist expansion for higher revenue per patient, 4) B2B expansion (home care, telemedicine partnerships, pharmacies)."},
+      {q:"Regulatory framework – what are the main risks?",a:"MVZs require KV approval (SGB V). Approval rights are tradable (§103 SGB V). Main risks: KV fee schedule changes, physician recruitment. Mitigated by hybrid model, diversification and funding access."},
+      {q:"What is the current shareholder structure?",a:"Details are shared in a personal meeting with NDA. Please schedule an appointment."}
+    ]
+  },
+  ba:{
+    de:[
+      {q:"Was unterscheidet Smart Care von anderen MVZ-Betreibern?",a:"Drei Dinge: 1) Hybrides Modell (50% remote) erlaubt mehr Patienten mit weniger Arztzeit. 2) Digitale Plattform zentralisiert Abläufe über alle Standorte. 3) Fokus auf unterversorgte Regionen = weniger Wettbewerb, mehr politische Unterstützung und Förderzugang."},
+      {q:"Wie wird mein Investment eingesetzt?",a:"Nachrangdarlehen finanziert direkt Praxisakquisitionen (Ø 80–150k€ Kaufpreis). Der Return ist konkret: Eine übernommene Praxis generiert nach 12–18 Monaten 78.000 € Jahresmarge statt vorher 5.000 € – ein Hebel von über 16x. Eigenkapital fließt parallel in App, KI und Team."},
+      {q:"Wie funktioniert Break-even pro Praxis?",a:"Vier Quartale nach Übernahme: Q1 CapEx (~45k€), Q2 Anlaufverluste (~−35k€), Q3 Stabilisierung, Q4 Break-even. Ab Q5 wächst der Cashflow kontinuierlich. Dieses Modell ist durch unsere bestehenden Praxen empirisch validiert."},{q:"Gibt es eine Wandeloption?",a:"Ja. Für Business Angels bieten wir Nachrangdarlehen mit optionaler Wandlung zu einem definierten Discount auf die nächste Bewertungsrunde. Details im Term Sheet nach NDA."},
+      {q:"Wann ist Break-even auf Praxisebene?",a:"Unser 4-Stufen-Modell erreicht Break-even im 4. Quartal nach Praxisübernahme. Das ist durch unsere bestehenden Praxen empirisch validiert."},
+      {q:"Wie läuft der Investmentprozess ab?",a:"1) Erstgespräch & NDA, 2) Deep-Dive Financials, 3) Term Sheet, 4) Closing. Ziel: 6–8 Wochen Gesamtprozess."}
+    ],
+    en:[
+      {q:"What differentiates Smart Care from other MVZ operators?",a:"Three things: 1) Hybrid model (50% remote) allows more patients with less physician time. 2) Digital platform centralizes operations. 3) Focus on underserved regions = less competition, more political support and funding access."},
+      {q:"How will my investment be used?",a:"Equity flows into app development, AI integration and team expansion. Subordinated loans directly finance practice acquisitions – the capital effect is immediately measurable."},
+      {q:"Is there a conversion option?",a:"Yes. For Business Angels we offer subordinated loans with optional conversion at a defined discount to the next valuation round. Details in the term sheet after NDA."},
+      {q:"When is break-even at practice level?",a:"Our 4-step model reaches break-even in the 4th quarter after practice acquisition, empirically validated by our existing practices."},
+      {q:"How does the investment process work?",a:"1) Initial meeting & NDA, 2) Deep-dive financials, 3) Term sheet, 4) Closing. Target: 6–8 week total process."}
+    ]
+  },
+  ff:{
+    de:[
+      {q:"Was macht Smart Care genau?",a:"Wir übernehmen Arztpraxen, die keinen Nachfolger finden, und modernisieren sie zu hybriden Medizinischen Versorgungszentren. Patienten können teils vor Ort kommen, teils digital behandelt werden. So können wir mehr Menschen versorgen."},
+      {q:"Warum ist das wichtig?",a:"In Deutschland gibt es schon heute 5.000 unbesetzte Hausarztpraxen. Millionen Menschen haben keinen Arzt in der Nähe. Das Problem wird in den nächsten Jahren dramatisch größer. Smart Care ist Teil der Lösung."},
+      {q:"Was passiert mit meinem Geld?",a:"Dein Investment geht direkt in den Aufkauf und die Modernisierung von Arztpraxen. Du erhältst 5% Zinsen pro Jahr auf dein eingesetztes Kapital, über eine Laufzeit von 5 Jahren. Am Ende der Laufzeit wird dein Kapital zurückgezahlt."},
+      {q:"Was ist das Risiko?",a:"Wie bei jedem Investment gibt es Risiken – insbesondere regulatorische Änderungen im Gesundheitssystem. Wir haben aber bereits funktionierende Praxen mit validierten Zahlen. Das Nachrangdarlehen ist ein in der Startup-Welt verbreitetes und seriöses Instrument."},
+      {q:"Ab wann und wie viel kann ich investieren?",a:"Einstieg ab 10.000 €. Kein Höchstbetrag. Du bekommst eine formale Darlehensvereinbarung und regelmäßige Updates."},
+      {q:"Wer steckt dahinter?",a:"Martin Lehradt & Dr. Janina Kaplan sind die Gründer – beides erfahrene Profis im Gesundheitswesen. Dazu ein starker Beirat aus der Healthcare-Investmentwelt und ein Interims-CFO mit internationaler Erfahrung."}
+    ],
+    en:[
+      {q:"What exactly does Smart Care do?",a:"We acquire medical practices that can't find a successor and modernize them into hybrid Medical Care Centers. Patients can partially come in person, and partially be treated digitally, allowing us to care for more people."},
+      {q:"Why does this matter?",a:"Germany already has 5,000 vacant general practices. Millions have no doctor nearby. The problem will grow dramatically in coming years. Smart Care is part of the solution."},
+      {q:"What happens to my money?",a:"Your investment goes directly into acquiring and modernizing medical practices. You receive 5% interest per year, over a term of 5 years. Your capital is repaid at the end of the term."},
+      {q:"What are the risks?",a:"Like any investment, risks exist – particularly regulatory changes in healthcare. However, we already have functioning practices with validated numbers. The subordinated loan is a widely-used, serious instrument in the startup world."},
+      {q:"How much and when can I invest?",a:"Entry from €10,000. No maximum. You receive a formal loan agreement and regular updates."},
+      {q:"Who is behind this?",a:"Martin Lehradt & Dr. Janina Kaplan are the founders – experienced healthcare professionals. Plus a strong advisory board from healthcare investment and an interim CFO with international experience."}
+    ]
+  }
+};
+
+function renderFAQ(){
+  if(!profile) return;
+  const c=document.getElementById('faq-list');
+  c.innerHTML=faqs[profile][lang].map((f,i)=>`\n    <div class="faq-item" id="fq${i}">\n      <div class="faq-question" onclick="toggleFAQ(${i})">\n        <span>${f.q}</span><span class="faq-arrow">▾</span>\n      </div>\n      <div class="faq-answer"><div class="faq-answer-inner">${f.a}</div></div>\n    </div>`).join('');
+}
+function toggleFAQ(i){document.getElementById('fq'+i).classList.toggle('open');}
+
+
+
+
+// ═══ MVZ SCENE ANIMATION ═══
+function initMVZScene(){
+  const canvas = document.getElementById('mvz-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 1000, H = 420;
+  let t = 0;
+  let sceneVisible = false;
+
+  // ── Color palette ──
+  const TEAL      = '#1D9E75';
+  const TEAL_DARK = '#0F6E56';
+  const TEAL_PALE = '#E1F5EE';
+  const TEAL_LIGHT= '#9FE1CB';
+  const WHITE     = '#FFFFFF';
+  const GRAY_LIGHT= '#f0faf6';
+  const GRAY      = '#888780';
+  const DARK      = '#04342C';
+
+  // ── Flowing particles on paths ──
+  const paths = [
+    { pts: [{x:220,y:200},{x:320,y:200},{x:420,y:200},{x:500,y:210}], color: TEAL, w:2 },
+    { pts: [{x:500,y:210},{x:580,y:200},{x:680,y:180},{x:760,y:160}], color: TEAL, w:2 },
+    { pts: [{x:500,y:210},{x:580,y:230},{x:680,y:260},{x:760,y:270}], color: TEAL_LIGHT, w:1.5 },
+    { pts: [{x:500,y:210},{x:500,y:140},{x:500,y:80}],                 color: TEAL_LIGHT, w:1.5 },
+  ];
+
+  // Particles per path
+  const particles = [];
+  paths.forEach((path, pi) => {
+    for(let i=0; i<3; i++){
+      particles.push({ pi, t: i/3, speed: 0.003 + Math.random()*0.002 });
+    }
+  });
+
+  function bezierPoint(pts, t){
+    if(pts.length === 2){
+      return { x: pts[0].x+(pts[1].x-pts[0].x)*t, y: pts[0].y+(pts[1].y-pts[0].y)*t };
+    }
+    const n = pts.length-1;
+    let x=0, y=0;
+    for(let i=0;i<=n;i++){
+      const b = binom(n,i)*Math.pow(t,i)*Math.pow(1-t,n-i);
+      x += b*pts[i].x; y += b*pts[i].y;
+    }
+    return {x,y};
+  }
+  function binom(n,k){ if(k===0||k===n)return 1; return binom(n-1,k-1)+binom(n-1,k); }
+
+  function drawPath(pts, color, w, alpha=0.25){
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    if(pts.length===2){
+      ctx.lineTo(pts[1].x, pts[1].y);
+    } else if(pts.length===3){
+      ctx.quadraticCurveTo(pts[1].x,pts[1].y, pts[2].x,pts[2].y);
+    } else {
+      for(let i=0;i<=1;i+=0.02){
+        const p = bezierPoint(pts,i);
+        ctx.lineTo(p.x,p.y);
+      }
+    }
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = w;
+    ctx.setLineDash([6,4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+  }
+
+  // ── Draw building (MVZ) ──
+  function drawBuilding(cx, cy){
+    // Main body
+    ctx.fillStyle = WHITE;
+    ctx.strokeStyle = TEAL_DARK;
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, cx-55, cy-65, 110, 100, 8); ctx.fill(); ctx.stroke();
+    // Roof
+    ctx.fillStyle = TEAL;
+    roundRect(ctx, cx-55, cy-78, 110, 18, 4); ctx.fill();
+    // Sign
+    ctx.fillStyle = DARK;
+    ctx.font = 'bold 9px DM Sans, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Smart Care MVZ', cx, cy-65);
+    // Windows
+    [[cx-30,cy-50],[cx,cy-50],[cx+25,cy-50],
+     [cx-30,cy-30],[cx,cy-30],[cx+25,cy-30]].forEach(([wx,wy])=>{
+      ctx.fillStyle = TEAL_PALE;
+      ctx.strokeStyle = TEAL;
+      ctx.lineWidth = 0.8;
+      roundRect(ctx, wx-9, wy-8, 18, 14, 3); ctx.fill(); ctx.stroke();
+    });
+    // Door
+    ctx.fillStyle = TEAL_LIGHT;
+    ctx.strokeStyle = TEAL;
+    roundRect(ctx, cx-10, cy-20, 20, 25, 3); ctx.fill(); ctx.stroke();
+    // S logo circle
+    ctx.beginPath(); ctx.arc(cx, cy-70, 7, 0, Math.PI*2);
+    ctx.fillStyle = TEAL_LIGHT; ctx.fill();
+    ctx.fillStyle = TEAL_DARK;
+    ctx.font = 'bold 9px DM Sans, sans-serif';
+    ctx.textAlign='center'; ctx.fillText('S', cx, cy-66);
+    // Location pin below
+    ctx.font='11px DM Sans, sans-serif'; ctx.fillStyle=TEAL_DARK;
+    ctx.fillText('📍 Smart Care MVZ', cx, cy+50);
+  }
+
+  // ── Draw patient scene (left) ──
+  function drawPatient(cx, cy, pulse){
+    // Chair / bed shape
+    ctx.fillStyle = TEAL_PALE;
+    ctx.strokeStyle = TEAL;
+    ctx.lineWidth = 1;
+    roundRect(ctx, cx-35, cy-5, 70, 30, 6); ctx.fill(); ctx.stroke();
+    // Patient figure
+    ctx.beginPath(); ctx.arc(cx-10, cy-28, 12, 0, Math.PI*2);
+    ctx.fillStyle = '#FDDCB5'; ctx.fill();
+    ctx.strokeStyle = '#D4A574'; ctx.lineWidth=0.8; ctx.stroke();
+    // Body
+    ctx.fillStyle='#C8E6F5'; ctx.strokeStyle='#7bb3cc'; ctx.lineWidth=0.8;
+    roundRect(ctx,cx-20,cy-16,24,22,4); ctx.fill(); ctx.stroke();
+    // Monitor/device
+    ctx.fillStyle=WHITE; ctx.strokeStyle=TEAL_DARK; ctx.lineWidth=1;
+    roundRect(ctx,cx+15,cy-35,28,22,4); ctx.fill(); ctx.stroke();
+    // Screen content – waveform
+    ctx.beginPath(); ctx.strokeStyle=TEAL; ctx.lineWidth=1.2;
+    const wOff = pulse%20;
+    ctx.moveTo(cx+17, cy-24);
+    [0,3,6,9,12,15,18,21].forEach((dx,i)=>{
+      const dy = i%4===1?-8:i%4===2?8:0;
+      ctx.lineTo(cx+17+((dx+wOff)%24), cy-24+dy);
+    });
+    ctx.stroke();
+    // Nurse figure
+    ctx.beginPath(); ctx.arc(cx+55, cy-32, 11, 0, Math.PI*2);
+    ctx.fillStyle='#F5C6A0'; ctx.fill();
+    ctx.strokeStyle='#c9956b'; ctx.lineWidth=0.8; ctx.stroke();
+    ctx.fillStyle='#4DB6AC'; roundRect(ctx,cx+44,cy-20,22,20,3); ctx.fill();
+    // Label
+    ctx.font='10px DM Sans'; ctx.fillStyle=TEAL_DARK; ctx.textAlign='center';
+    ctx.fillText('Vor-Ort-Versorgung', cx+25, cy+40);
+    ctx.font='9px DM Sans'; ctx.fillStyle=GRAY;
+    ctx.fillText('50% physisch', cx+25, cy+52);
+  }
+
+  // ── Draw remote doctor screens (right) ──
+  function drawScreens(topX, topY, botX, botY, pulse){
+    // Top screen
+    ctx.fillStyle = DARK;
+    ctx.strokeStyle = TEAL;
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, topX-45, topY-40, 90, 65, 8); ctx.fill(); ctx.stroke();
+    // Screen glow/active indicator
+    ctx.beginPath(); ctx.arc(topX+38, topY-36, 5, 0, Math.PI*2);
+    const glowOn = Math.sin(pulse*0.15)>0;
+    ctx.fillStyle = glowOn ? '#22c55e' : '#16a34a'; ctx.fill();
+    // Doctor figure on screen
+    ctx.beginPath(); ctx.arc(topX-8, topY-20, 10, 0, Math.PI*2);
+    ctx.fillStyle='#FDDCB5'; ctx.fill();
+    ctx.fillStyle='#2563EB'; roundRect(ctx,topX-18,topY-10,20,18,3); ctx.fill();
+    // Pulmologie label on screen
+    ctx.font='bold 8px DM Sans'; ctx.fillStyle=TEAL_LIGHT; ctx.textAlign='center';
+    ctx.fillText('Pulmologie', topX+20, topY-18);
+    ctx.font='7px DM Sans'; ctx.fillStyle='rgba(159,225,203,0.7)';
+    ctx.fillText('Schwerin', topX+20, topY-8);
+    // Video call dots
+    [0,1,2].forEach(i=>{
+      ctx.beginPath(); ctx.arc(topX-20+i*14, topY+14, 3, 0, Math.PI*2);
+      ctx.fillStyle = i===Math.floor(pulse/8)%3 ? TEAL : 'rgba(159,225,203,0.3)'; ctx.fill();
+    });
+    // Caption
+    ctx.font='10px DM Sans'; ctx.fillStyle=TEAL_DARK; ctx.textAlign='center';
+    ctx.fillText('Virtueller Facharzt-Hub', topX, topY+36);
+    ctx.font='9px DM Sans'; ctx.fillStyle=GRAY;
+    ctx.fillText('50% remote', topX, topY+48);
+
+    // Bottom screen (smaller, Kardiologie)
+    ctx.fillStyle = '#082820';
+    ctx.strokeStyle = TEAL_LIGHT;
+    ctx.lineWidth = 1;
+    roundRect(ctx, botX-35, botY-30, 70, 52, 6); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(botX+28, botY-27, 4, 0, Math.PI*2);
+    ctx.fillStyle = Math.sin(pulse*0.12+1)>0 ? '#22c55e' : '#16a34a'; ctx.fill();
+    ctx.beginPath(); ctx.arc(botX-8, botY-14, 8, 0, Math.PI*2);
+    ctx.fillStyle='#FDDCB5'; ctx.fill();
+    ctx.fillStyle='#1e40af'; roundRect(ctx,botX-16,botY-6,16,14,2); ctx.fill();
+    ctx.font='bold 7px DM Sans'; ctx.fillStyle=TEAL_LIGHT; ctx.textAlign='center';
+    ctx.fillText('Kardiologie', botX+14, botY-12);
+    ctx.font='6px DM Sans'; ctx.fillStyle='rgba(159,225,203,0.6)';
+    ctx.fillText('Remote', botX+14, botY-4);
+  }
+
+  // ── Draw KI platform (top center) ──
+  function drawPlatform(cx, cy, pulse){
+    ctx.fillStyle = WHITE;
+    ctx.strokeStyle = TEAL;
+    ctx.lineWidth = 1;
+    roundRect(ctx, cx-40, cy-22, 80, 44, 8); ctx.fill(); ctx.stroke();
+    // AI chip icon
+    ctx.strokeStyle = TEAL_DARK; ctx.lineWidth=1.2;
+    roundRect(ctx, cx-14, cy-14, 28, 28, 4); ctx.stroke();
+    // Grid lines inside chip
+    [cx-6,cx+2,cx+10].forEach(x=>{
+      ctx.beginPath(); ctx.moveTo(x,cy-14); ctx.lineTo(x,cy+14);
+      ctx.strokeStyle='rgba(29,158,117,0.3)'; ctx.lineWidth=0.5; ctx.stroke();
+    });
+    [cy-6,cy+2,cy+10].forEach(y=>{
+      ctx.beginPath(); ctx.moveTo(cx-14,y); ctx.lineTo(cx+14,y);
+      ctx.strokeStyle='rgba(29,158,117,0.3)'; ctx.lineWidth=0.5; ctx.stroke();
+    });
+    // Pulse dot
+    ctx.beginPath();
+    const r = 4 + Math.sin(pulse*0.1)*2;
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fillStyle=TEAL; ctx.globalAlpha=0.8; ctx.fill(); ctx.globalAlpha=1;
+    // Label
+    ctx.font='bold 9px DM Sans'; ctx.fillStyle=TEAL_DARK; ctx.textAlign='center';
+    ctx.fillText('KI-Plattform', cx, cy+32);
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+    ctx.arcTo(x+w,y,x+w,y+r,r); ctx.lineTo(x+w,y+h-r);
+    ctx.arcTo(x+w,y+h,x+w-r,y+h,r); ctx.lineTo(x+r,y+h);
+    ctx.arcTo(x,y+h,x,y+h-r,r); ctx.lineTo(x,y+r);
+    ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+  }
+
+  function drawFrame(){
+    t++;
+    ctx.clearRect(0,0,W,H);
+
+    // Background subtle grid
+    ctx.strokeStyle='rgba(29,158,117,0.04)'; ctx.lineWidth=1;
+    for(let x=0;x<W;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for(let y=0;y<H;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+    // Draw connection paths
+    paths.forEach(p => drawPath(p.pts, p.color, p.w));
+
+    // Draw moving particles on paths
+    particles.forEach(par => {
+      par.t = (par.t + par.speed) % 1;
+      const path = paths[par.pi];
+      const pos = bezierPoint(path.pts, par.t);
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, 3.5, 0, Math.PI*2);
+      ctx.fillStyle = path.color; ctx.globalAlpha=0.9; ctx.fill(); ctx.globalAlpha=1;
+      // Trail
+      const pos2 = bezierPoint(path.pts, Math.max(0, par.t-0.04));
+      ctx.beginPath(); ctx.moveTo(pos2.x,pos2.y); ctx.lineTo(pos.x,pos.y);
+      ctx.strokeStyle=path.color; ctx.lineWidth=2; ctx.globalAlpha=0.3; ctx.stroke(); ctx.globalAlpha=1;
+    });
+
+    // Draw main elements
+    drawPatient(175, 230, t);           // Patient left
+    drawBuilding(500, 285);             // MVZ building center
+    drawScreens(760, 170, 770, 300, t); // Screens right
+    drawPlatform(500, 80, t);           // KI platform top
+
+    // Section labels
+    ctx.font='500 11px DM Sans'; ctx.fillStyle=GRAY; ctx.textAlign='center';
+
+    if(sceneVisible) requestAnimationFrame(drawFrame);
+  }
+
+  // Start immediately + keep going when visible
+  sceneVisible = true;
+  drawFrame();
+  const sceneObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      sceneVisible = e.isIntersecting;
+      if(sceneVisible) drawFrame();
+    });
+  }, {threshold: 0.01});
+  sceneObs.observe(canvas);
+
+  // Animate stats counters when visible
+  const statsObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(!e.isIntersecting) return;
+      const targets = [{id:'rs-num0',start:0,end:30,prefix:'+',suffix:'%'},
+                       {id:'rs-num1',start:0,end:100,prefix:'',suffix:' km'},
+                       {id:'rs-num2',start:0,end:20,prefix:'−',suffix:'%'}];
+      targets.forEach((tg,i) => {
+        setTimeout(()=>{
+          const el = document.getElementById(tg.id);
+          if(!el) return;
+          let cur=tg.start, dur=1200, s=performance.now();
+          function step(now){
+            const p=Math.min((now-s)/dur,1);
+            const ease=1-Math.pow(1-p,3);
+            el.textContent=tg.prefix+Math.round(tg.start+(tg.end-tg.start)*ease)+tg.suffix;
+            if(p<1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        }, i*200);
+      });
+      statsObs.disconnect();
+    });
+  }, {threshold:0.3});
+  const statsSection = document.getElementById('rs-num0');
+  if(statsSection) statsObs.observe(statsSection.closest('section')||statsSection.parentElement);
+}
+
+// ═══ PATIENT JOURNEY ANIMATION ═══
+function initJourneyAnimation(){
+  const steps = document.querySelectorAll('.journey-step');
+  if(!steps.length) return;
+  let current = 0;
+  function activate(i){
+    steps.forEach((s,idx) => s.classList.toggle('active', idx === i));
+    current = i;
+  }
+  activate(0);
+  // Auto-cycle when section visible
+  const jObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        const t = setInterval(()=>{
+          current = (current + 1) % steps.length;
+          activate(current);
+        }, 2200);
+        e.target._journeyTimer = t;
+      } else {
+        clearInterval(e.target._journeyTimer);
+      }
+    });
+  }, {threshold: 0.3});
+  const sec = document.getElementById('netzwerk');
+  if(sec) jObs.observe(sec);
+
+  // Click on steps
+  steps.forEach((s,i) => s.addEventListener('click', () => activate(i)));
+}
+
+// ═══ ORBITAL NETWORK CANVAS ═══
+function initOrbitalCanvas(){
+  const c = document.getElementById('orbital-canvas');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  const W=400, H=400, CX=200, CY=185;
+  let angle=0, orbVisible=false;
+
+  const PRAXEN=[
+    {id:'NGL',color:'#1D9E75',stroke:'#9FE1CB',r:22,active:true},
+    {id:'LUL',color:'#1D9E75',stroke:'#9FE1CB',r:22,active:true},
+    {id:'LUF I',color:'#1D9E75',stroke:'#9FE1CB',r:22,active:true},
+    {id:'LUF II',color:'#1D9E75',stroke:'#9FE1CB',r:22,active:true},
+    {id:'HDA',color:'#1D9E75',stroke:'#9FE1CB',r:22,active:true},
+    {id:'HEL',color:'#BA7517',stroke:'#FAC775',r:18,active:false,dash:true},
+    {id:'+n',color:'#3B6D11',stroke:'#C0DD97',r:14,active:false,dash:true},
+  ];
+
+  const SPECIALISTS=[
+    {id:'Pulmo. Schwerin',color:'#085041',stroke:'#5DCAA5',r:28},
+    {id:'Kardio. Remote',color:'#085041',stroke:'#5DCAA5',r:24},
+  ];
+
+  function drawOrbit(rx,ry,alpha,dash){
+    ctx.beginPath();
+    ctx.ellipse(CX,CY,rx,ry,0,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(159,225,203,${alpha})`;
+    ctx.lineWidth=0.8;
+    if(dash) ctx.setLineDash([5,4]); else ctx.setLineDash([]);
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  function drawNode(x,y,r,color,stroke,label,dash,pulse){
+    // Glow
+    ctx.beginPath(); ctx.arc(x,y,r+4,0,Math.PI*2);
+    ctx.fillStyle=`rgba(29,158,117,${0.06+Math.sin(pulse)*0.04})`; ctx.fill();
+    // Circle
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=color; ctx.fill();
+    ctx.strokeStyle=stroke; ctx.lineWidth=1.5;
+    if(dash){ctx.setLineDash([4,3]);} else {ctx.setLineDash([]);}
+    ctx.stroke(); ctx.setLineDash([]);
+    // Label
+    const lines=label.split('\n');
+    ctx.fillStyle='#9FE1CB'; ctx.textAlign='center';
+    lines.forEach((l,i)=>{
+      ctx.font=`${r>20?'8':'7'}px DM Sans`;
+      ctx.fillText(l, x, y+(i-(lines.length-1)/2)*10+2);
+    });
+  }
+
+  function drawDataParticle(ox,oy,rx,ry,t,color){
+    const x=ox+rx*Math.cos(t), y=oy+ry*Math.sin(t);
+    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fillStyle=color; ctx.globalAlpha=0.85; ctx.fill(); ctx.globalAlpha=1;
+    // mini trail
+    const x2=ox+rx*Math.cos(t-0.15), y2=oy+ry*Math.sin(t-0.15);
+    ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x,y);
+    ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.globalAlpha=0.3; ctx.stroke(); ctx.globalAlpha=1;
+  }
+
+  function frame(){
+    angle+=0.006;
+    ctx.clearRect(0,0,W,H);
+
+    // Background
+    ctx.fillStyle='rgba(4,52,44,0.0)'; ctx.fillRect(0,0,W,H);
+
+    // Orbit rings
+    drawOrbit(155,62,0.3,false);  // specialist orbit
+    drawOrbit(175,72,0.15,true);  // GP orbit (slightly bigger)
+
+    // Data particles on orbits
+    drawDataParticle(CX,CY,155,62, angle*1.2,'#5DCAA5');
+    drawDataParticle(CX,CY,155,62, angle*1.2+Math.PI,'#5DCAA5');
+    drawDataParticle(CX,CY,175,72, angle*0.7,'#9FE1CB');
+    drawDataParticle(CX,CY,175,72, angle*0.7+Math.PI,'#9FE1CB');
+    drawDataParticle(CX,CY,175,72, angle*0.7+Math.PI*1.3,'rgba(186,117,23,0.8)');
+
+    // Specialist nodes (inner orbit)
+    SPECIALISTS.forEach((sp,i)=>{
+      const a = angle*(1+i*0.3)+(i*Math.PI);
+      const x=CX+155*Math.cos(a), y=CY+62*Math.sin(a);
+      drawNode(x,y,sp.r,sp.color,sp.stroke,sp.id,false,angle*3+i);
+    });
+
+    // GP nodes (outer orbit)
+    PRAXEN.forEach((p,i)=>{
+      const a = angle*0.55+(i/PRAXEN.length)*Math.PI*2;
+      const x=CX+175*Math.cos(a), y=CY+72*Math.sin(a);
+      drawNode(x,y,p.r,p.color,p.stroke,p.id,p.dash||false,angle*2+i);
+    });
+
+    // Central MVZ core
+    const coreR = 42 + Math.sin(angle*2)*2;
+    ctx.beginPath(); ctx.arc(CX,CY,coreR+8,0,Math.PI*2);
+    ctx.fillStyle=`rgba(29,158,117,${0.08+Math.sin(angle*1.5)*0.03})`; ctx.fill();
+    ctx.beginPath(); ctx.arc(CX,CY,coreR,0,Math.PI*2);
+    ctx.fillStyle='#04342C'; ctx.fill();
+    ctx.strokeStyle='#1D9E75'; ctx.lineWidth=2; ctx.stroke();
+    // S logo
+    ctx.fillStyle='#9FE1CB'; ctx.font='bold 11px DM Sans'; ctx.textAlign='center';
+    ctx.fillText('Smart', CX, CY-10);
+    ctx.fillText('Care', CX, CY+2);
+    ctx.font='8px DM Sans'; ctx.fillStyle='rgba(159,225,203,0.6)';
+    ctx.fillText('Virtuelles MVZ', CX, CY+16);
+
+    // Labels outside orbit ring
+    ctx.font='9px DM Sans'; ctx.fillStyle='rgba(159,225,203,0.45)'; ctx.textAlign='center';
+    ctx.fillText('Hausarztpraxen', CX, CY+72+28);
+    ctx.fillText('Fachärztlicher Hub', CX, CY-62-16);
+
+    if(orbVisible) requestAnimationFrame(frame);
+  }
+
+  const orbObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      orbVisible=e.isIntersecting;
+      if(orbVisible) frame();
+    });
+  },{threshold:0.1});
+  orbVisible=true; frame();
+  orbObs.observe(c);
+}
+
+// ═══ WALKTHROUGH ═══
+const WT_STEPS=[
+  {nav:{de:'1. Akquisition',en:'1. Acquisition'},title:{de:'Praxisübernahme nach bewährtem Schema.',en:'Practice acquisition – proven process.'},body:{de:'Smart Care identifiziert Praxen ohne Nachfolger, verhandelt Kaufpreise zwischen 80–150k und übernimmt inklusive KV-Zulassung. Der Standardprozess dauert 3–6 Monate.',en:'Smart Care identifies practices without successors, negotiates purchase prices between 80–150k and takes over including KV approval. The standard process takes 3–6 months.'},kpis:[{val:'80–150k',lbl:{de:'Kaufpreis',en:'Purchase Price'}},{val:'3–6 Mo.',lbl:{de:'Prozess',en:'Process'}},{val:'§103',lbl:{de:'SGB V',en:'SGB V'}}],svg:'<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect x="10" y="20" width="100" height="70" rx="8" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/><text x="60" y="52" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="sans-serif">Bestehende Praxis</text><text x="60" y="68" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="9" font-family="sans-serif">kein Nachfolger</text><path d="M115 55 L140 55" stroke="#1D9E75" stroke-width="2" marker-end="url(#a1)"/><defs><marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 Z" fill="#1D9E75"/></marker></defs><rect x="145" y="20" width="115" height="70" rx="8" fill="rgba(29,158,117,0.25)" stroke="#1D9E75" stroke-width="1.5"/><text x="202" y="52" text-anchor="middle" fill="#9FE1CB" font-size="10" font-family="sans-serif">Smart Care MVZ</text><text x="202" y="68" text-anchor="middle" fill="rgba(159,225,203,0.7)" font-size="9" font-family="sans-serif">KV-Zulassung OK</text><text x="60" y="120" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="9" font-family="sans-serif">5.000 Marge/Jahr</text><text x="202" y="120" text-anchor="middle" fill="#9FE1CB" font-size="9" font-family="sans-serif">78.000 Marge/Jahr</text><text x="140" y="150" text-anchor="middle" fill="#9FE1CB" font-size="10" font-family="sans-serif">Steigerung 16x in 12-18 Monaten</text></svg>'},
+  {nav:{de:'2. Integration',en:'2. Integration'},title:{de:'Digitale Plattform übernimmt Betrieb.',en:'Digital platform takes over operations.'},body:{de:'Innerhalb von 90 Tagen: digitale Dokumentation, KI-gestützte Abläufe, Remote-Monitoring, Telemedizin-Hub. Overhead sinkt um 20%.',en:'Within 90 days: digital documentation, AI-assisted workflows, remote monitoring, telemedicine hub. Overhead drops by 20%.'},kpis:[{val:'90 Tage',lbl:{de:'Integration',en:'Integration'}},{val:'-20%',lbl:{de:'Overhead',en:'Overhead'}},{val:'KI',lbl:{de:'Plattform',en:'Platform'}}],svg:'<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg" style="width:100%"><circle cx="140" cy="90" r="40" fill="none" stroke="#1D9E75" stroke-width="1.5"/><circle cx="140" cy="90" r="24" fill="rgba(29,158,117,0.2)" stroke="#1D9E75" stroke-width="1"/><text x="140" y="87" text-anchor="middle" fill="#9FE1CB" font-size="9" font-family="sans-serif">Smart Care</text><text x="140" y="99" text-anchor="middle" fill="#9FE1CB" font-size="9" font-family="sans-serif">Plattform</text><rect x="5" y="10" width="58" height="26" rx="5" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.15)"/><text x="34" y="27" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="8" font-family="sans-serif">Dokumentation</text><line x1="63" y1="23" x2="103" y2="68" stroke="rgba(29,158,117,0.4)" stroke-width="1" stroke-dasharray="3,3"/><rect x="217" y="10" width="58" height="26" rx="5" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.15)"/><text x="246" y="27" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="8" font-family="sans-serif">Telemedizin</text><line x1="217" y1="23" x2="177" y2="68" stroke="rgba(29,158,117,0.4)" stroke-width="1" stroke-dasharray="3,3"/><rect x="5" y="144" width="58" height="26" rx="5" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.15)"/><text x="34" y="161" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="8" font-family="sans-serif">KI-Analyse</text><line x1="63" y1="157" x2="103" y2="112" stroke="rgba(29,158,117,0.4)" stroke-width="1" stroke-dasharray="3,3"/><rect x="217" y="144" width="58" height="26" rx="5" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.15)"/><text x="246" y="161" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="8" font-family="sans-serif">Monitoring</text><line x1="217" y1="157" x2="177" y2="112" stroke="rgba(29,158,117,0.4)" stroke-width="1" stroke-dasharray="3,3"/></svg>'},
+  {nav:{de:'3. Skalierung',en:'3. Scale-Up'},title:{de:'Patientenbasis wächst, Marge steigt.',en:'Patient base grows, margin rises.'},body:{de:'Das hybride Modell erlaubt 30% mehr Patienten ohne Personalaufstockung. Fachärztliche Erweiterung erhöht Umsatz pro Patient. Break-even im 4. Quartal.',en:'The hybrid model allows 30% more patients without additional staff. Specialist extension increases revenue per patient. Break-even in Q4.'},kpis:[{val:'+30%',lbl:{de:'Patienten',en:'Patients'}},{val:'70 EUR',lbl:{de:'Umsatz/Patient',en:'Revenue/Patient'}},{val:'Q4',lbl:{de:'Break-even',en:'Break-even'}}],svg:'<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg" style="width:100%"><line x1="25" y1="160" x2="260" y2="160" stroke="rgba(255,255,255,0.15)" stroke-width="1"/><line x1="25" y1="160" x2="25" y2="15" stroke="rgba(255,255,255,0.15)" stroke-width="1"/><rect x="35" y="145" width="18" height="15" rx="2" fill="rgba(255,255,255,0.1)"/><rect x="65" y="133" width="18" height="27" rx="2" fill="rgba(255,255,255,0.1)"/><rect x="95" y="118" width="18" height="42" rx="2" fill="#1D9E75" fill-opacity="0.6"/><rect x="125" y="98" width="18" height="62" rx="2" fill="#1D9E75"/><rect x="155" y="72" width="18" height="88" rx="2" fill="#1D9E75"/><rect x="185" y="45" width="18" height="115" rx="2" fill="#1D9E75"/><rect x="215" y="22" width="18" height="138" rx="2" fill="#1D9E75"/><text x="44" y="175" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="7" font-family="sans-serif">Q1</text><text x="74" y="175" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="7" font-family="sans-serif">Q2</text><text x="104" y="175" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="7" font-family="sans-serif">Q3</text><text x="134" y="175" text-anchor="middle" fill="#BA7517" font-size="7" font-family="sans-serif">Q4</text><text x="164" y="175" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="7" font-family="sans-serif">Q5</text><text x="194" y="175" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="7" font-family="sans-serif">Q6</text><text x="224" y="175" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="7" font-family="sans-serif">Q7</text><path d="M35,155 C70,145 100,120 135,95 C170,68 200,42 224,20" fill="none" stroke="#9FE1CB" stroke-width="2"/><circle cx="134" cy="98" r="5" fill="none" stroke="#BA7517" stroke-width="2"/><text x="148" y="93" fill="#BA7517" font-size="8" font-family="sans-serif">Break-even</text></svg>'},
+  {nav:{de:'4. Rendite',en:'4. Returns'},title:{de:'Kapital zurück – mit Rendite.',en:'Capital returned – with yield.'},body:{de:'Investoren erhalten Zinsen während der Laufzeit. Bei 18 Praxen und 7–8 Mio. Umsatz bis 2030 entsteht ein attraktives Portfolio für PE-Exits oder strategische Käufer.',en:'Investors receive interest during the term. With 18 practices and 7-8M revenue by 2030 an attractive portfolio emerges for PE exits or strategic buyers.'},kpis:[{val:'5–8%',lbl:{de:'Zinsen p.a.',en:'Interest p.a.'}},{val:'7–8 Mio.',lbl:{de:'Umsatz 2030',en:'Revenue 2030'}},{val:'18+',lbl:{de:'Praxen 2030',en:'Practices 2030'}}],svg:'<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg" style="width:100%"><text x="140" y="48" text-anchor="middle" fill="white" font-size="34" font-family="serif">7–8</text><text x="140" y="66" text-anchor="middle" fill="#9FE1CB" font-size="12" font-family="sans-serif">Mio. EUR Umsatz 2030</text><line x1="30" y1="80" x2="250" y2="80" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><rect x="35" y="92" width="60" height="52" rx="8" fill="rgba(29,158,117,0.2)" stroke="#1D9E75" stroke-width="1"/><text x="65" y="116" text-anchor="middle" fill="#9FE1CB" font-size="18" font-family="serif">18</text><text x="65" y="132" text-anchor="middle" fill="rgba(159,225,203,0.6)" font-size="8" font-family="sans-serif">Praxen 2030</text><rect x="110" y="92" width="60" height="52" rx="8" fill="rgba(29,158,117,0.2)" stroke="#1D9E75" stroke-width="1"/><text x="140" y="116" text-anchor="middle" fill="#9FE1CB" font-size="18" font-family="serif">1M</text><text x="140" y="132" text-anchor="middle" fill="rgba(159,225,203,0.6)" font-size="8" font-family="sans-serif">Patientenkontakte</text><rect x="185" y="92" width="60" height="52" rx="8" fill="rgba(186,117,23,0.2)" stroke="#BA7517" stroke-width="1"/><text x="215" y="114" text-anchor="middle" fill="#FAC775" font-size="16" font-family="serif">5-8%</text><text x="215" y="132" text-anchor="middle" fill="rgba(250,199,117,0.6)" font-size="8" font-family="sans-serif">Zinsen p.a.</text></svg>'}
+];
+
+let wtCurrent=0;
+
+function renderWalkthrough(){
+  const nav=document.getElementById('wt-nav');
+  const dots=document.getElementById('wt-dots');
+  if(!nav) return;
+  nav.innerHTML=WT_STEPS.map((s,i)=>`\n    <button class="wt-nav-btn${i===wtCurrent?' active':''}" onclick="wtGo(${i})">${s.nav[lang]}</button>`).join('');
+  dots.innerHTML=WT_STEPS.map((_,i)=>`\n    <div class="wt-dot${i===wtCurrent?' active':''}" onclick="wtGo(${i})"></div>`).join('');
+
+  const s=WT_STEPS[wtCurrent];
+  const content=document.getElementById('wt-content');
+  const visual=document.getElementById('wt-visual');
+  content.style.opacity='0';
+  content.style.transform='translateY(12px)';
+  setTimeout(()=>{
+    content.innerHTML=`\n      <div class="wt-step-num">${lang==='de'?'Schritt':'Step'} ${wtCurrent+1} ${lang==='de'?'von':'of'} ${WT_STEPS.length}</div>\n      <div class="wt-step-title">${s.title[lang]}</div>\n      <div class="wt-step-body">${s.body[lang]}</div>\n      <div class="wt-kpis">${s.kpis.map(k=>`
+        <div class="wt-kpi">
+          <div class="wt-kpi-val">${k.val}</div>
+          <div class="wt-kpi-lbl">${k.lbl[lang]}</div>
+        </div>`).join('')}\n      </div>`;
+    visual.innerHTML=`<div class="wt-svg-wrap">${s.svg}</div>`;
+    content.style.transition='all 0.35s ease';
+    content.style.opacity='1';
+    content.style.transform='none';
+  },100);
+
+  document.getElementById('wt-progress-bar').style.width=
+    `${((wtCurrent+1)/WT_STEPS.length)*100}%`;
+}
+
+function wtStep(dir){
+  wtCurrent=Math.max(0,Math.min(WT_STEPS.length-1,wtCurrent+dir));
+  renderWalkthrough();
+}
+function wtGo(i){wtCurrent=i;renderWalkthrough();}
+
+// Auto-advance walkthrough when visible
+let wtTimer=null;
+const wtObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      wtTimer=setInterval(()=>{
+        if(wtCurrent<WT_STEPS.length-1){wtCurrent++;renderWalkthrough();}
+        else clearInterval(wtTimer);
+      },5000);
+    } else {
+      clearInterval(wtTimer);
+    }
+  });
+},{threshold:0.3});
+setTimeout(()=>{
+  const wt=document.getElementById('modell-walkthrough');
+  if(wt) wtObs.observe(wt);
+},1000);
+
+
+// ═══ FLYWHEEL STEPS ═══
+const FW_STEPS=[
+  {n:1,de:'Hausarztpraxen',en:'GP Practices',body:{de:'Patientenfundament · Lokale Versorgung · Kontinuierlicher Patientenzugang',en:'Patient foundation · Local care · Continuous patient access'}},
+  {n:2,de:'Mehr Patientenströme',en:'More Patient Flows',body:{de:'Höhere Auslastung · Mehr Überweisungen · Größeres Versorgungsnetz',en:'Higher utilization · More referrals · Larger care network'}},
+  {n:3,de:'Fachärztliche Hubs',en:'Specialist Hubs',body:{de:'Pulmologie Schwerin · Kardiologie · Telemedizin · Weitere Fachrichtungen',en:'Pulmonology Schwerin · Cardiology · Telemedicine · More specialties'}},
+  {n:4,de:'Höhere Erlöse',en:'Higher Revenues',body:{de:'Facharztumsätze · Digitale Leistungen · Remote Care · Wiederkehrende Umsätze',en:'Specialist revenues · Digital services · Remote care · Recurring revenues'}},
+  {n:5,de:'Mehr Daten & KI',en:'More Data & AI',body:{de:'Klinische Daten · KI-gestützte Prozesse · Automatisierung · Plattformeffekte',en:'Clinical data · AI processes · Automation · Platform effects'}},
+  {n:6,de:'Bessere Versorgung',en:'Better Care',body:{de:'Schnellere Diagnostik · Höhere Qualität · Niedrigere Kosten · Attraktiv für neue Praxen',en:'Faster diagnostics · Higher quality · Lower costs · Attractive to new practices'}}
+];
+
+let fwStepActive=0;
+
+function renderFWSteps(){
+  const grid=document.getElementById('fw-steps-grid');
+  if(!grid) return;
+  const l=lang;
+  grid.innerHTML=FW_STEPS.map((s,i)=>`
+    <div class="fw-step-card${i===fwStepActive?' active':''}" onclick="fwStepClick(${i})">
+      <div class="fw-step-num">${s.n}</div>
+      <div class="fw-step-title">${s[l]||s.de}</div>
+      <div class="fw-step-body">${s.body[l]||s.body.de}</div>
+    </div>`).join('');
+}
+
+function fwStepClick(i){ fwStepActive=i; renderFWSteps(); }
+
+function initFlywheelCanvas(){
+  renderFWSteps();
+  setInterval(()=>{ fwStepActive=(fwStepActive+1)%FW_STEPS.length; renderFWSteps(); },3000);
+}
+
+// ═══ MARKET FAQ ═══
+const MFAQ = {
+  hausarzt: {
+    de: [
+      {q:'Warum nehmen Hausärzte keine neuen Patienten auf?', a:'Viele Hausarztpraxen arbeiten bereits an ihrer Belastungsgrenze. Termine, Akutfälle, Verwaltung und Dokumentation nehmen viel Zeit in Anspruch. Um die Versorgung der bestehenden Patienten sicherzustellen, müssen Praxen ihre Kapazitäten begrenzen. Auch Personalmangel spielt eine große Rolle. Smart Care löst das durch hybride Modelle und zentrale Plattformunterstützung.'},
+      {q:'Warum fehlen so viele Hausärzte?', a:'Viele Hausärztinnen und Hausärzte gehen in den kommenden Jahren in Ruhestand. Gleichzeitig entscheiden sich weniger Medizinstudierende für die hausärztliche Tätigkeit. Hohe Arbeitsbelastung, Bürokratie und wirtschaftliche Unsicherheiten schrecken ab. Besonders in ländlichen Regionen ist der Mangel deutlich spürbar. Smart Care adressiert genau diese Versorgungslücken.'},
+      {q:'Was tun, wenn kein Hausarzt mehr Patienten aufnimmt?', a:'In diesem Fall können sich Patienten an die Kassenärztliche Vereinigung wenden. Für akute Beschwerden stehen Bereitschaftsdienst und Notaufnahmen zur Verfügung. Manche Praxen führen Wartelisten. Smart Care schafft neue Kapazitäten durch Praxisübernahmen in unterversorgten Regionen.'},
+      {q:'Was ist der Unterschied zwischen Hausarzt und Allgemeinarzt?', a:'Ein Allgemeinarzt ist ein Arzt mit der Facharztanerkennung für Allgemeinmedizin. Hausarzt beschreibt dagegen die Rolle als erster Ansprechpartner für einen Patienten. Fachlich sind sie gleich qualifiziert, der Unterschied liegt in der koordinierenden Funktion.'}
+    ],
+    en: [
+      {q:'Why do GPs not accept new patients?', a:'Many GP practices are already at their capacity limit. Appointments, acute cases, administration and documentation take up a lot of time. To ensure quality care for existing patients, practices must limit capacity. Staff shortages also play a major role. Smart Care solves this through hybrid models and central platform support.'},
+      {q:'Why are there so few GPs?', a:'Many GPs are retiring in the coming years. At the same time, fewer medical students choose general practice. High workload, bureaucracy and financial uncertainty are deterrents. The shortage is particularly noticeable in rural regions. Smart Care addresses exactly these care gaps.'},
+      {q:'What to do when no GP accepts patients?', a:'Patients can contact the Kassenärztliche Vereinigung for help. For acute complaints, out-of-hours services and emergency rooms are available. Smart Care creates new capacities through practice acquisitions in underserved regions.'},
+      {q:'What is the difference between GP and general practitioner?', a:'A general practitioner has specialist recognition in general medicine. GP describes the role as first point of contact for a patient. Professionally they are equally qualified; the difference lies in the coordinating function.'}
+    ]
+  },
+  mvz: {
+    de: [
+      {q:'Was versteht man unter MVZ?', a:'Ein Medizinisches Versorgungszentrum (MVZ) ist eine ärztlich geleitete Einrichtung, in der mehrere Ärzte gemeinsam unter einem organisatorischen Dach arbeiten. Je nach Ausrichtung können unterschiedliche Fachrichtungen vertreten sein. Ziel ist eine koordinierte und kontinuierliche Versorgung. Smart Care betreibt MVZs in Brandenburg, Sachsen und Mecklenburg-Vorpommern.'},
+      {q:'Sind Ärzte im MVZ angestellt?', a:'Ja, Ärztinnen und Ärzte arbeiten im MVZ in der Regel als Angestellte. Das bietet mehr Planungssicherheit, geregelte Arbeitszeiten und weniger unternehmerisches Risiko. Dieses Modell ist daher besonders attraktiv für Ärzte, die sich auf die Medizin konzentrieren wollen. Für Smart Care bedeutet das: leichtere Rekrutierung in unterversorgten Regionen.'},
+      {q:'Was ist der Unterschied zwischen MVZ und Gemeinschaftspraxis?', a:'In einer Gemeinschaftspraxis sind die Ärzte selbstständig tätig und gemeinsam Praxisinhaber. Ein MVZ ist dagegen eine eigenständige juristische Einheit mit einem Träger. Die Organisation, Haftung und wirtschaftliche Verantwortung sind im MVZ zentral geregelt. Das ermöglicht Smart Care effiziente Skalierung über mehrere Standorte.'},
+      {q:'Was ist hybride Versorgung?', a:'Eine hybride Arztpraxis verbindet klassische Behandlung vor Ort mit digitalen Angeboten. Patienten können je nach Situation entweder persönlich kommen oder Videosprechstunden nutzen. Medizinische Qualität und ärztliche Verantwortung bleiben dabei vollständig erhalten. Smart Care realisiert 50% der Versorgung remote – das schafft 30% mehr Kapazität bei gleichen Kosten.'}
+    ],
+    en: [
+      {q:'What is an MVZ?', a:'A Medizinisches Versorgungszentrum (MVZ) is a physician-led facility where multiple doctors work together under one organizational roof. Different specialties can be represented depending on the orientation. The goal is coordinated and continuous care. Smart Care operates MVZs in Brandenburg, Saxony and Mecklenburg-Vorpommern.'},
+      {q:'Are doctors employed in an MVZ?', a:'Yes, doctors in an MVZ typically work as employees. This offers more planning security, regulated working hours and less entrepreneurial risk. This model is therefore particularly attractive for doctors who want to focus on medicine. For Smart Care it means: easier recruitment in underserved regions.'},
+      {q:'What is the difference between MVZ and group practice?', a:'In a group practice, doctors work independently and are co-owners. An MVZ is an independent legal entity with a carrier. Organization, liability and financial responsibility are centrally managed. This enables Smart Care to scale efficiently across multiple locations.'},
+      {q:'What is hybrid care?', a:'A hybrid practice combines traditional on-site treatment with digital services. Patients can either come in person or use video consultations depending on the situation. Medical quality and physician responsibility remain fully intact. Smart Care delivers 50% of care remotely – creating 30% more capacity at the same cost.'}
+    ]
+  },
+  digital: {
+    de: [
+      {q:'Was versteht man unter Telemedizin?', a:'Telemedizin bezeichnet medizinische Leistungen, die mithilfe digitaler Technologien über räumliche Distanz erbracht werden. Dazu zählen Videosprechstunden, digitale Verlaufskontrollen oder die elektronische Übermittlung von Befunden. Der ärztliche Kontakt bleibt bestehen, findet aber nicht zwingend in der Praxis statt. Smart Care integriert Telemedizin als Kernbestandteil seines hybriden Versorgungsmodells.'},
+      {q:'Ist Telemedizin in Deutschland erlaubt?', a:'Ja, Telemedizin ist in Deutschland gesetzlich erlaubt und fest in der Regelversorgung verankert. Seit der Lockerung des Fernbehandlungsverbots dürfen Ärzte Patienten auch ausschließlich per Video behandeln, wenn dies medizinisch vertretbar ist. Das schafft die regulatorische Grundlage für Smart Cares Remote-Modell.'},
+      {q:'Was sind digitale Gesundheitsanwendungen (DiGA)?', a:'Digitale Gesundheitsanwendungen sind geprüfte medizinische Apps oder Online-Programme. Sie unterstützen Patienten bei der Behandlung oder dem Umgang mit bestimmten Erkrankungen. DiGA werden vom BfArM geprüft und können ärztlich verordnet werden. Smart Care integriert DiGA als zusätzliche Erlösquelle in den Versorgungspfad.'},
+      {q:'Was ist KI in der Medizin?', a:'KI in der Medizin bezeichnet Software, die aus medizinischen Daten lernt und Aufgaben übernimmt, für die sonst menschliches Denken nötig wäre. Sie erkennt Muster in Befunden, unterstützt Diagnosen und automatisiert Dokumentation. Smart Care nutzt KI zur Prozessoptimierung, Kostenreduktion und Qualitätssteigerung über alle Standorte.'}
+    ],
+    en: [
+      {q:'What is telemedicine?', a:'Telemedicine refers to medical services delivered using digital technologies across geographic distances. This includes video consultations, digital progress monitoring or electronic transmission of findings. The doctor-patient relationship remains intact, but does not have to take place in the practice. Smart Care integrates telemedicine as a core component of its hybrid care model.'},
+      {q:'Is telemedicine allowed in Germany?', a:'Yes, telemedicine is legally permitted in Germany and firmly embedded in standard care. Since the relaxation of the remote treatment ban, doctors may treat patients exclusively by video if medically justifiable. This creates the regulatory foundation for Smart Care\'s remote model.'},
+      {q:'What are digital health applications (DiGA)?', a:'Digital health applications are tested medical apps or online programs. They support patients in the treatment or management of certain conditions. DiGA are reviewed by BfArM and can be prescribed by doctors. Smart Care integrates DiGA as an additional revenue stream in the care pathway.'},
+      {q:'What is AI in medicine?', a:'AI in medicine refers to software that learns from medical data and takes over tasks that would otherwise require human thinking. It recognizes patterns in findings, supports diagnoses and automates documentation. Smart Care uses AI for process optimization, cost reduction and quality improvement across all locations.'}
+    ]
+  },
+  system: {
+    de: [
+      {q:'Was versteht man unter Gesundheitsversorgung?', a:'Gesundheitsversorgung umfasst alle Maßnahmen, die der Erhaltung, Förderung oder Wiederherstellung der Gesundheit dienen. Dazu gehören Prävention, Diagnostik, Behandlung und Nachsorge. In Deutschland steht das System unter zunehmendem Druck durch Ärztemangel, Demographie und Kosten. Smart Care adressiert diesen Strukturwandel mit einem skalierbaren Modell.'},
+      {q:'Ist das deutsche Gesundheitssystem wirklich so gut?', a:'Ja, in vielen Punkten ist es sehr leistungsfähig. Die medizinische Qualität ist hoch, der Zugang vergleichsweise breit. Gleichzeitig ist das System teuer, bürokratisch und zunehmend unter Druck durch Fachkräftemangel. Besonders die Hausarztversorgung steht vor einem strukturellen Kollaps – genau hier setzt Smart Care an.'},
+      {q:'Was ist der Unterschied zwischen ambulant und stationär?', a:'Bei stationärer Versorgung werden Patienten mindestens eine Nacht im Krankenhaus aufgenommen. Ambulante Versorgung erfolgt ohne Übernachtung in Praxen, MVZ oder per Telemedizin. Smart Care operiert vollständig ambulant – das ist ressourcenschonender und skaliert besser. Ambulant ist heute der Standard, nicht die Ausnahme.'},
+      {q:'Was macht die Kassenärztliche Vereinigung (KV)?', a:'Die KV stellt sicher, dass gesetzlich Versicherte ambulant ärztlich versorgt werden. Sie organisiert den Bereitschaftsdienst und regelt die Zusammenarbeit zwischen Ärzten und Krankenkassen. Smart Care operiert als MVZ-Betreiber unter KV-Zulassung – ein wichtiger regulatorischer Schutzwall und Qualitätsmerkmal.'}
+    ],
+    en: [
+      {q:'What is healthcare?', a:'Healthcare encompasses all measures to maintain, promote or restore health. This includes prevention, diagnostics, treatment and aftercare. In Germany, the system is under increasing pressure from doctor shortages, demographics and costs. Smart Care addresses this structural change with a scalable model.'},
+      {q:'Is the German healthcare system really that good?', a:'Yes, in many respects it is very capable. Medical quality is high and access is comparatively broad. At the same time the system is expensive, bureaucratic and increasingly under pressure from staff shortages. GP care in particular faces structural collapse – exactly where Smart Care comes in.'},
+      {q:'What is the difference between outpatient and inpatient care?', a:'Inpatient care involves patients being admitted to hospital for at least one night. Outpatient care occurs without overnight stay in practices, MVZ or via telemedicine. Smart Care operates entirely outpatient – more resource-efficient and scales better. Outpatient is today\'s standard, not the exception.'},
+      {q:'What does the Kassenärztliche Vereinigung (KV) do?', a:'The KV ensures that statutory insurance members receive outpatient medical care. It organizes out-of-hours services and regulates cooperation between doctors and health insurers. Smart Care operates as an MVZ operator under KV approval – an important regulatory quality mark.'}
+    ]
+  }
+};
+
+let mfaqCurrentTab = 'hausarzt';
+
+function mfaqTab(tab){
+  mfaqCurrentTab = tab;
+  document.querySelectorAll('.mfaq-tab').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes(tab)));
+  renderMFAQ();
+}
+
+function renderMFAQ(){
+  const data = MFAQ[mfaqCurrentTab][lang] || MFAQ[mfaqCurrentTab].de;
+  const c = document.getElementById('mfaq-list');
+  c.innerHTML = data.map((item, i) => {
+    const id = 'mfq_'+mfaqCurrentTab+'_'+i;
+    return '<div class="faq-item" id="'+id+'"><div class="faq-question" onclick="toggleMFAQ(\''+id+'\')"><span>'+item.q+'</span><span class="faq-arrow">▾</span></div><div class="faq-answer"><div class="faq-answer-inner">'+item.a+'</div></div></div>';
+  }).join('');
+}
+
+function toggleMFAQ(id){ document.getElementById(id).classList.toggle('open'); }
+
+// Photo embed instructions (for self-service)
+// To add your own photos, open the file and find:
+//   id="photo-martin"  -> replace initials div with <img src="martin.jpg">
+//   id="photo-janina"  -> replace initials div with <img src="janina.jpg">
+//   id="photo-carsten" -> replace initials div with <img src="carsten.jpg">
+// Upload photos to same folder as the HTML file on Hostinger
+
+
+// ═══ CONTACT MODAL ═══
+function openContact(){
+  const m=document.getElementById('contact-modal');
+  m.style.display='flex';
+  document.getElementById('c-success').style.display='none';
+  document.getElementById('c-error').style.display='none';
+}
+function closeContact(){
+  document.getElementById('contact-modal').style.display='none';
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeContact();
+});
+document.getElementById('contact-modal').addEventListener('click',function(e){
+  if(e.target===this) closeContact();
+});
+function submitContact(){
+  const fname=document.getElementById('c-fname').value.trim();
+  const lname=document.getElementById('c-lname').value.trim();
+  const email=document.getElementById('c-email').value.trim();
+  const msg=document.getElementById('c-msg').value.trim();
+  const errEl=document.getElementById('c-error');
+  errEl.style.display='none';
+  if(!fname||!email||!msg){
+    errEl.textContent=lang==='de'?'Bitte Vorname, E-Mail und Nachricht ausfüllen.':'Please fill in first name, email and message.';
+    errEl.style.display='block';
+    return;
+  }
+  if(!email.includes('@')){
+    errEl.textContent=lang==='de'?'Bitte eine gültige E-Mail-Adresse eingeben.':'Please enter a valid email address.';
+    errEl.style.display='block';
+    return;
+  }
+  // Build mailto link
+  const subject=encodeURIComponent('Smart Care Investor Anfrage – '+fname+' '+lname);
+  const body=encodeURIComponent('Name: '+fname+' '+lname+'\nE-Mail: '+email+'\n\n'+msg);
+  const mailto='mailto:m.lehradt@smartcarehealth.de?subject='+subject+'&body='+body;
+  window.location.href=mailto;
+  document.getElementById('c-success').style.display='block';
+  setTimeout(()=>closeContact(),3000);
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+  });
+});
+</script>
+</body>
+</html>
