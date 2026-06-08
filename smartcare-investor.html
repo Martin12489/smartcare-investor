@@ -599,6 +599,27 @@ body.profile-ff .hidden-ff{display:block;}
 .tp-bubble{font-size:0.68rem;background:rgba(29,158,117,0.25);border:1px solid rgba(29,158,117,0.4);border-radius:20px;padding:3px 10px;color:var(--teal-light);text-decoration:none;transition:background 0.2s;}
 .tp-bubble:hover{background:rgba(29,158,117,0.4);}
 
+
+.map-explorer{display:grid;grid-template-columns:1fr 380px;gap:1.5rem;align-items:start;margin-top:1.5rem;}
+.map-panel{}
+#map{height:380px;border-radius:16px;overflow:hidden;border:1px solid var(--border);}
+.location-chips{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1rem;}
+.detail-panel{background:var(--gray-light);border-radius:20px;padding:1.5rem;position:relative;}
+.detail-status{position:absolute;top:1.2rem;right:1.2rem;background:var(--teal);color:white;font-size:0.72rem;font-weight:600;padding:4px 12px;border-radius:20px;}
+.detail-img{width:80px;height:80px;border-radius:12px;background:var(--teal-pale);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;font-size:2rem;}
+.detail-name{font-family:var(--font-serif);font-size:1.5rem;font-weight:400;margin-bottom:0.2rem;}
+.detail-region{color:var(--teal);font-size:0.85rem;font-weight:500;margin-bottom:0.8rem;}
+.detail-desc{font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem;}
+.detail-kpis{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem;}
+.detail-kpi{background:white;border-radius:12px;padding:0.8rem;text-align:center;}
+.detail-kpi-val{font-family:var(--font-serif);font-size:1.1rem;color:var(--teal-dark);margin-bottom:0.2rem;}
+.detail-kpi-lbl{font-size:0.7rem;color:var(--text-muted);}
+.detail-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem;}
+.detail-tag{background:var(--teal-pale);color:var(--teal-dark);font-size:0.72rem;padding:3px 10px;border-radius:20px;}
+.detail-maps{display:inline-block;color:var(--teal);font-size:0.82rem;text-decoration:none;font-weight:500;}
+.detail-maps:hover{text-decoration:underline;}
+@media(max-width:900px){.map-explorer{grid-template-columns:1fr;}}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
@@ -930,16 +951,34 @@ body.profile-ff .hidden-ff{display:block;}
     <div class="section-label reveal" data-de="Standorte" data-en="Locations">Standorte</div>
     <h2 class="section-title reveal reveal-delay-1" data-de="Unser Netzwerk wächst." data-en="Our network is growing.">Unser Netzwerk wächst.</h2>
     <p class="section-sub reveal reveal-delay-2" data-de="Aktive MVZ-Standorte in Mecklenburg-Vorpommern, Brandenburg und Sachsen – mit Hellersdorf in Planung." data-en="Active MVZ locations in Mecklenburg-Vorpommern, Brandenburg and Saxony – with Hellersdorf in planning.">Aktive MVZ-Standorte in Mecklenburg-Vorpommern, Brandenburg und Sachsen – mit Hellersdorf in Planung.</p>
-    <div class="reveal"><div id="map"></div></div>
-    <div class="location-grid">
-      <div class="location-chip reveal reveal-delay-1"><div class="location-dot"></div>Neustadt-Glewe (MV)</div>
-      <div class="location-chip reveal reveal-delay-1"><div class="location-dot"></div>Ludwigslust (MV)</div>
-      <div class="location-chip reveal reveal-delay-2"><div class="location-dot"></div>Ludwigsfelde (BB)</div>
-      <div class="location-chip reveal reveal-delay-2"><div class="location-dot"></div>Bannewitz (SN)</div>
-      <div class="location-chip reveal reveal-delay-3"><div class="location-dot"></div>Heidenau (SN)</div>
-      <div class="location-chip reveal reveal-delay-3" style="border-style:dashed;color:var(--text-muted);">
-        <div class="location-dot" style="background:var(--amber);"></div>
-        <span data-de="Hellersdorf (in Planung)" data-en="Hellersdorf (planned)">Hellersdorf (in Planung)</span>
+    <!-- Map + Detail Panel -->
+    <div class="map-explorer reveal">
+      <div class="map-panel">
+        <div id="map"></div>
+        <div class="location-chips">
+          <div class="location-chip active" onclick="selectLocation(0)"><div class="location-dot"></div>Neustadt-Glewe (MV)</div>
+          <div class="location-chip" onclick="selectLocation(1)"><div class="location-dot"></div>Ludwigslust (MV)</div>
+          <div class="location-chip" onclick="selectLocation(2)"><div class="location-dot"></div>Ludwigsfelde I (BB)</div>
+          <div class="location-chip" onclick="selectLocation(3)"><div class="location-dot"></div>Ludwigsfelde II (BB)</div>
+          <div class="location-chip" onclick="selectLocation(4)"><div class="location-dot"></div>Heidenau (SN)</div>
+          <div class="location-chip" onclick="selectLocation(5)" style="border-style:dashed;color:var(--text-muted);"><div class="location-dot" style="background:var(--amber);"></div><span>Pulmologie Schwerin (MV)</span></div>
+          <div class="location-chip" onclick="selectLocation(6)" style="border-style:dashed;color:var(--text-muted);"><div class="location-dot" style="background:var(--amber);"></div><span>Hellersdorf (in Planung)</span></div>
+        </div>
+      </div>
+      <div class="detail-panel" id="locationDetail">
+        <div class="detail-status" id="det-status">Aktiv</div>
+        <div class="detail-img" id="det-img"></div>
+        <div class="detail-name" id="det-name">Neustadt-Glewe</div>
+        <div class="detail-region" id="det-region">Mecklenburg-Vorpommern</div>
+        <div class="detail-desc" id="det-desc">Aktiver Standort in Mecklenburg-Vorpommern. Hausärztliche Versorgung mit hybridem Modell.</div>
+        <div class="detail-kpis" id="det-kpis">
+          <div class="detail-kpi"><div class="detail-kpi-val" id="det-stat">Aktiv</div><div class="detail-kpi-lbl">Status</div></div>
+          <div class="detail-kpi"><div class="detail-kpi-val" id="det-model">Hybrid</div><div class="detail-kpi-lbl">Versorgungsmodell</div></div>
+          <div class="detail-kpi"><div class="detail-kpi-val" id="det-land">MV</div><div class="detail-kpi-lbl">Bundesland</div></div>
+          <div class="detail-kpi"><div class="detail-kpi-val" id="det-fach">Hausärztlich</div><div class="detail-kpi-lbl">Fachrichtung</div></div>
+        </div>
+        <div class="detail-tags" id="det-tags"></div>
+        <a class="detail-maps" id="det-maps" href="#" target="_blank">📍 In Google Maps öffnen ↗</a>
       </div>
     </div>
   </div>
@@ -1485,6 +1524,38 @@ function initJourneySteps(){
       </div>
       <div class="journey-step-body">${s.body[l]||s.body.de}</div>
     </div>`).join('');
+}
+
+
+const LOCATIONS = [
+  {name:'Neustadt-Glewe',region:'Mecklenburg-Vorpommern',short:'MV',status:'Aktiv',model:'Hybrid',fach:'Hausärztlich',desc:'Aktiver Standort in Mecklenburg-Vorpommern. Hausärztliche Hybridversorgung mit Remote-Anteil.',tags:['Hausärztlich','MV','Ländlich'],maps:'https://maps.google.com/?q=Neustadt-Glewe+MVZ',lat:53.378,lng:11.594,color:'#1D9E75'},
+  {name:'Ludwigslust',region:'Mecklenburg-Vorpommern',short:'MV',status:'Aktiv',model:'Hybrid',fach:'Hausärztlich',desc:'Aktiver Standort in MV. Versorgung der Region Ludwigslust mit hybridem Modell.',tags:['Hausärztlich','MV','Hybrid'],maps:'https://maps.google.com/?q=Ludwigslust+MVZ',lat:53.326,lng:11.496,color:'#1D9E75'},
+  {name:'Ludwigsfelde I',region:'Brandenburg',short:'BB',status:'Aktiv',model:'Hybrid',fach:'Hausärztlich',desc:'Aktiver Standort in Ludwigsfelde, Brandenburg. Direkt südlich von Berlin.',tags:['Hausärztlich','Brandenburg','Berlin-Umland'],maps:'https://maps.app.goo.gl/YuEbZLsmqQ854PTM7',lat:52.299,lng:13.254,color:'#1D9E75'},
+  {name:'Ludwigsfelde II',region:'Brandenburg',short:'BB',status:'Aktiv',model:'Hybrid',fach:'Hausärztlich',desc:'Zweiter aktiver Standort in Ludwigsfelde, Brandenburg. Teil des Smart Care Brandenburg Netzwerks.',tags:['Hausärztlich','Brandenburg','Berlin-Umland'],maps:'https://maps.app.goo.gl/5cBCfqzphvxWeEJZ9',lat:52.301,lng:13.258,color:'#1D9E75'},
+  {name:'Heidenau',region:'Sachsen',short:'SN',status:'Aktiv',model:'Hybrid',fach:'Hausärztlich · Intensivmedizin',desc:'Aktiver Standort südlich von Dresden. Beweis des Modells: vollständig integriert, mit Remote-Patient-Monitoring in der Kardiologie als erstem Pilotsystem.',tags:['Hausärztlich','Intensivmedizin','Sachsen','Dresden-Umland'],maps:'https://maps.app.goo.gl/Z9B5XkQoCFobSaUTA',lat:50.979,lng:13.858,color:'#1D9E75'},
+  {name:'Smart Care MVZ Pulmologie',region:'Mecklenburg-Vorpommern',short:'MV',status:'In Planung',model:'Hybrid',fach:'Pulmologie',desc:'Geplante Facharztpraxis Pulmologie in Schwerin. Kernstück des fachärztlichen Hubs – versorgt Patienten aus dem gesamten Netzwerk remote.',tags:['Pulmologie','MV','Schwerin','Planung'],maps:'https://maps.app.goo.gl/r1gF7oFdznkhN5V57',lat:53.635,lng:11.401,color:'#EF9F27'},
+  {name:'Hellersdorf',region:'Berlin',short:'BE',status:'In Planung',model:'Hybrid',fach:'Hausärztlich',desc:'Geplanter Standort in Berlin-Hellersdorf. KV-Zulassung in Bearbeitung.',tags:['Hausärztlich','Berlin','Planung'],maps:'https://maps.app.goo.gl/MiqmWM1KdQR8d2a2A',lat:52.527,lng:13.601,color:'#EF9F27'},
+];
+
+let currentLocation = 0;
+
+function selectLocation(i){
+  currentLocation = i;
+  const loc = LOCATIONS[i];
+  document.getElementById('det-name').textContent = loc.name;
+  document.getElementById('det-region').textContent = loc.region;
+  document.getElementById('det-desc').textContent = loc.desc;
+  document.getElementById('det-stat').textContent = loc.status;
+  document.getElementById('det-model').textContent = loc.model;
+  document.getElementById('det-land').textContent = loc.short;
+  document.getElementById('det-fach').textContent = loc.fach;
+  document.getElementById('det-maps').href = loc.maps;
+  const statusEl = document.getElementById('det-status');
+  statusEl.textContent = loc.status;
+  statusEl.style.background = loc.status === 'Aktiv' ? 'var(--teal)' : 'var(--amber)';
+  document.getElementById('det-tags').innerHTML = loc.tags.map(t=>'<span class="detail-tag">'+t+'</span>').join('');
+  document.querySelectorAll('.location-chips .location-chip').forEach((c,j)=>c.classList.toggle('active',j===i));
+  document.getElementById('det-img').textContent = '🏥';
 }
 
 // Smooth scroll
