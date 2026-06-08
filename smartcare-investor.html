@@ -538,6 +538,67 @@ body.profile-ff .hidden-ff{display:block;}
 .leaflet-popup-content-wrapper{border-radius:12px;font-family:var(--font-sans);}
 .map-popup h4{color:var(--teal-dark);font-size:0.9rem;margin-bottom:0.2rem;}
 .map-popup p{font-size:0.8rem;color:var(--text-muted);}
+
+.doctor-grid{display:flex;flex-wrap:wrap;gap:0.6rem;justify-content:center;margin-top:0.8rem;}
+.doctor-item{display:flex;flex-direction:column;align-items:center;gap:0.3rem;width:70px;}
+.doctor-circle{
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(29,158,117,0.3);border:2px solid rgba(29,158,117,0.6);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;flex-shrink:0;
+}
+.doctor-circle img{width:100%;height:100%;object-fit:cover;}
+.doctor-circle .doctor-logo{width:28px;height:28px;opacity:0.7;}
+.doctor-name{font-size:0.62rem;color:rgba(255,255,255,0.7);text-align:center;line-height:1.2;}
+.doctor-location{font-size:0.58rem;color:rgba(255,255,255,0.4);text-align:center;}
+.doctor-link{font-size:0.6rem;color:var(--teal-light);text-decoration:none;text-align:center;}
+.doctor-link:hover{text-decoration:underline;}
+
+
+.network-layout{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;}
+.pyramid-wrap{display:flex;flex-direction:column;gap:1rem;}
+.pyramid-tiers{display:flex;flex-direction:column;gap:0;}
+.pyramid-tier{border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:1rem 1.2rem;margin-bottom:0.5rem;}
+.tier-top{background:rgba(255,255,255,0.08);text-align:center;}
+.tier-mid{background:rgba(29,158,117,0.2);border-color:rgba(29,158,117,0.4);}
+.tier-bot{background:rgba(29,158,117,0.1);border-color:rgba(29,158,117,0.25);}
+.tier-label{font-weight:600;color:white;font-size:0.95rem;margin-bottom:0.3rem;}
+.tier-sub{font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.5;}
+.pyramid-legend-row{display:flex;gap:1rem;flex-wrap:wrap;}
+.pyramid-legend-row span{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:rgba(255,255,255,0.6);}
+.pleg-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.doctor-grid{display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.8rem;}
+.doctor-item{display:flex;flex-direction:column;align-items:center;gap:0.25rem;width:60px;}
+.doctor-circle{width:44px;height:44px;border-radius:50%;background:rgba(29,158,117,0.3);border:2px solid rgba(29,158,117,0.5);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.doctor-circle img{width:100%;height:100%;object-fit:cover;}
+.doctor-circle .doc-logo{width:24px;height:24px;opacity:0.7;}
+.doctor-name{font-size:0.6rem;color:rgba(255,255,255,0.75);text-align:center;line-height:1.2;}
+.doctor-loc{font-size:0.55rem;color:rgba(255,255,255,0.4);text-align:center;}
+.journey-wrap{}
+.journey-label{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;color:var(--teal-light);margin-bottom:1rem;}
+.journey-steps{display:flex;flex-direction:column;gap:0.8rem;}
+@media(max-width:768px){.network-layout{grid-template-columns:1fr;}}
+
+
+.journey-step{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:1rem;}
+.journey-step-header{display:flex;align-items:flex-start;gap:0.8rem;margin-bottom:0.5rem;}
+.journey-step-icon{font-size:1.3rem;flex-shrink:0;}
+.journey-step-label{font-size:0.65rem;font-weight:600;letter-spacing:0.08em;color:var(--teal-light);text-transform:uppercase;}
+.journey-step-title{font-size:0.9rem;font-weight:600;color:white;}
+.journey-step-body{font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.55;padding-left:2.1rem;}
+
+
+.true-pyramid{display:flex;flex-direction:column;align-items:center;gap:0.4rem;}
+.tp-tier{border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:1rem 1.5rem;text-align:center;transition:all 0.2s;}
+.tp-top{width:60%;background:rgba(255,255,255,0.07);}
+.tp-mid{width:80%;background:rgba(29,158,117,0.2);border-color:rgba(29,158,117,0.4);}
+.tp-bot{width:100%;background:rgba(29,158,117,0.1);border-color:rgba(29,158,117,0.25);}
+.tp-title{font-weight:600;color:white;font-size:0.9rem;margin-bottom:0.4rem;}
+.tp-sub{font-size:0.75rem;color:rgba(255,255,255,0.6);line-height:1.5;}
+.tp-bubbles{display:flex;flex-wrap:wrap;justify-content:center;gap:0.4rem;margin:0.7rem 0;}
+.tp-bubble{font-size:0.68rem;background:rgba(29,158,117,0.25);border:1px solid rgba(29,158,117,0.4);border-radius:20px;padding:3px 10px;color:var(--teal-light);text-decoration:none;transition:background 0.2s;}
+.tp-bubble:hover{background:rgba(29,158,117,0.4);}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
@@ -603,6 +664,7 @@ body.profile-ff .hidden-ff{display:block;}
   <div class="nav-links">
     <a href="#problem" data-de="Problem" data-en="Problem">Problem</a>
     <a href="#model" data-de="Modell" data-en="Model">Modell</a>
+    <a href="#netzwerk" data-de="Netzwerk" data-en="Network">Netzwerk</a>
     <a href="#standorte" data-de="Standorte" data-en="Locations">Standorte</a>
     <a href="#zahlen" data-de="Zahlen" data-en="Numbers">Zahlen</a>
     <a href="#investment" data-de="Investment" data-en="Investment">Investment</a>
@@ -704,7 +766,7 @@ body.profile-ff .hidden-ff{display:block;}
       <div class="model-card reveal reveal-delay-1">
         <div class="model-icon">🏥</div>
         <h3 data-de="Lokale Teams vor Ort" data-en="Local Teams On-Site">Lokale Teams vor Ort</h3>
-        <p data-de="Qualifizierte Pflegefachkräfte führen Diagnostik durch und betreuen Patienten direkt. 50% der Versorgung physisch." data-en="Qualified nursing staff perform diagnostics and care for patients directly. 50% of care is physical.">Qualifizierte Pflegefachkräfte führen Diagnostik durch und betreuen Patienten direkt. 50% der Versorgung physisch.</p>
+        <p data-de="Qualifizierte Pflegefachkräfte führen Diagnostik durch und betreuen Patienten direkt. Ärzte arbeiten hybrid mit bis zu 50% remote Tätigkeit." data-en="Qualified nursing staff perform diagnostics and care for patients directly. 50% of care is physical.">Qualifizierte Pflegefachkräfte führen Diagnostik durch und betreuen Patienten direkt. Ärzte arbeiten hybrid mit bis zu 50% remote Tätigkeit.</p>
       </div>
       <div class="model-card reveal reveal-delay-2">
         <div class="model-icon">💻</div>
@@ -756,6 +818,113 @@ body.profile-ff .hidden-ff{display:block;}
 </section>
 
 <!-- MAP -->
+
+<!-- NETZWERK -->
+<section id="netzwerk" style="background:var(--teal-deep);">
+  <div class="section">
+    <div class="section-label reveal" style="color:var(--teal-light);" data-de="Das Netzwerk" data-en="The Network">Das Netzwerk</div>
+    <h2 class="section-title reveal reveal-delay-1" style="color:white;" data-de="Hausarzt ist der Anker. Fachärzte sind der Hebel." data-en="GP is the anchor. Specialists are the lever.">Hausarzt ist der Anker.<br>Fachärzte sind der Hebel.</h2>
+    <p class="section-sub reveal reveal-delay-2" style="color:rgba(255,255,255,0.6);" data-de="Wir bauen das virtuelle MVZ von unten nach oben: Hausarztpraxen schaffen das Patientenfundament – Fachärzte multiplizieren Erlöse und Reichweite." data-en="We build the virtual MVZ from the bottom up: GP practices create the patient foundation – specialists multiply revenue and reach.">Wir bauen das virtuelle MVZ von unten nach oben: Hausarztpraxen schaffen das Patientenfundament – Fachärzte multiplizieren Erlöse und Reichweite.</p>
+
+    <div class="network-layout">
+
+      <!-- LEFT: TRUE PYRAMID -->
+      <div class="reveal">
+        <div class="true-pyramid">
+
+          <!-- TOP: Virtuelles MVZ -->
+          <div class="tp-tier tp-top">
+            <div class="tp-title">Virtuelles MVZ</div>
+            <div class="tp-sub">KI · Plattform · Daten</div>
+          </div>
+
+          <!-- MID: Fachärztlicher Hub -->
+          <div class="tp-tier tp-mid">
+            <div class="tp-title" data-de="Fachärztlicher Hub" data-en="Specialist Hub">Fachärztlicher Hub</div>
+            <div class="tp-sub">Pulmologie &amp; Anästhesie<br>Kardiologie · Telemedizin · Remote<br><span style="opacity:0.5;">+ weitere Fachrichtungen geplant</span></div>
+          </div>
+
+          <!-- BOTTOM: Smart Care Praxen -->
+          <div class="tp-tier tp-bot">
+            <div class="tp-title" data-de="Unsere aktuellen Smart Care Praxen" data-en="Our current Smart Care Practices">Unsere aktuellen Smart Care Praxen</div>
+            <!-- Practice location bubbles -->
+            <div class="tp-bubbles">
+              <a href="https://www.smartcare-praxen.de/mvz-neustadt-glewe" target="_blank" class="tp-bubble">Neustadt-Glewe ↗</a>
+              <a href="https://www.smartcare-praxen.de/mvz-heidenau" target="_blank" class="tp-bubble">Heidenau ↗</a>
+              <a href="https://www.smartcare-praxen.de/mvz-ludwigslust" target="_blank" class="tp-bubble">Ludwigslust ↗</a>
+              <a href="https://www.smartcare-praxen.de/mvz-ludwigsfelde" target="_blank" class="tp-bubble">Ludwigsfelde I ↗</a>
+              <a href="https://www.smartcare-praxen.de/mvz-brandenburg" target="_blank" class="tp-bubble">Ludwigsfelde II ↗</a>
+            </div>
+            <!-- Doctor circles -->
+            <div class="doctor-grid" id="doctorGrid"></div>
+          </div>
+
+        </div>
+
+        <!-- Legend -->
+        <div class="pyramid-legend-row" style="margin-top:1rem;">
+          <span><span class="pleg-dot" style="background:#1D9E75;"></span>Hausarztpraxen</span>
+          <span><span class="pleg-dot" style="background:#5DCAA5;"></span>Fachärzte</span>
+          <span><span class="pleg-dot" style="background:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.4);"></span>Virtuelles MVZ</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: AKI PATIENT JOURNEY -->
+      <div class="reveal reveal-delay-1">
+        <div class="journey-label" data-de="PATIENT JOURNEY – AUSSERKLINISCHE INTENSIVPFLEGE" data-en="PATIENT JOURNEY – HOME INTENSIVE CARE">PATIENT JOURNEY – AUSSERKLINISCHE INTENSIVPFLEGE</div>
+        <div class="journey-steps">
+
+          <div class="journey-step">
+            <div class="journey-step-header">
+              <span class="journey-step-icon">📱</span>
+              <div>
+                <div class="journey-step-label">Schritt 1</div>
+                <div class="journey-step-title" data-de="Patient wählt sich per Tablet ein" data-en="Patient connects via tablet">Patient wählt sich per Tablet ein</div>
+              </div>
+            </div>
+            <div class="journey-step-body" data-de="Zuhause oder in der Pflegeeinrichtung – der Patient öffnet die Smart Care App und bucht einen Termin beim Facharzt. Keine Anfahrt, kein Wartezimmer." data-en="At home or in the care facility – the patient opens the Smart Care app and books an appointment with the specialist. No travel, no waiting room.">Zuhause oder in der Pflegeeinrichtung – der Patient öffnet die Smart Care App und bucht einen Termin. Keine Anfahrt, kein Wartezimmer.</div>
+          </div>
+
+          <div class="journey-step">
+            <div class="journey-step-header">
+              <span class="journey-step-icon">👨‍⚕️</span>
+              <div>
+                <div class="journey-step-label">Schritt 2</div>
+                <div class="journey-step-title" data-de="Remote-Termin mit dem Arzt" data-en="Remote appointment with the doctor">Remote-Termin mit dem Arzt</div>
+              </div>
+            </div>
+            <div class="journey-step-body" data-de="Der Arzt führt die Telemedizin-Konsultation durch. Befunde, Vitalwerte und Dokumentation laufen über die Smart Care Plattform – KI-gestützt und sicher." data-en="The doctor conducts the telemedicine consultation. Findings, vital signs and documentation run through the Smart Care platform – AI-assisted and secure.">Der Arzt führt die Telemedizin-Konsultation durch. Befunde, Vitalwerte und Dokumentation laufen über die Smart Care Plattform – KI-gestützt und sicher.</div>
+          </div>
+
+          <div class="journey-step">
+            <div class="journey-step-header">
+              <span class="journey-step-icon">💊</span>
+              <div>
+                <div class="journey-step-label">Schritt 3</div>
+                <div class="journey-step-title" data-de="Rezept & Medikamente werden geliefert" data-en="Prescription & medication delivered">Rezept &amp; Medikamente werden geliefert</div>
+              </div>
+            </div>
+            <div class="journey-step-body" data-de="Das E-Rezept wird direkt ausgestellt. Die Medikamente werden nach Hause geliefert – der Patient muss nicht in die Apotheke." data-en="The e-prescription is issued directly. Medications are delivered to the patient's home – no trip to the pharmacy needed.">Das E-Rezept wird direkt ausgestellt. Die Medikamente werden nach Hause geliefert – kein Gang in die Apotheke.</div>
+          </div>
+
+          <div class="journey-step" style="border-color:rgba(29,158,117,0.4);background:rgba(29,158,117,0.12);">
+            <div class="journey-step-header">
+              <span class="journey-step-icon">🔗</span>
+              <div>
+                <div class="journey-step-label" style="color:#9FE1CB;">Ergebnis</div>
+                <div class="journey-step-title" data-de="Überweisung ins Smart Care Netzwerk" data-en="Referral into the Smart Care network">Überweisung ins Smart Care Netzwerk</div>
+              </div>
+            </div>
+            <div class="journey-step-body" data-de="Bei Bedarf: direkte Überweisung zu Fachärzten aus dem Smart Care Netzwerk – Pulmologie, Kardiologie, Anästhesie. Alles koordiniert, alles digital." data-en="If needed: direct referral to specialists within the Smart Care network – pulmonology, cardiology, anaesthesia. All coordinated, all digital.">Bei Bedarf: direkte Überweisung zu Fachärzten aus dem Smart Care Netzwerk – Pulmologie, Kardiologie, Anästhesie. Alles koordiniert, alles digital.</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <section id="standorte" style="background:white;">
   <div class="section">
     <div class="section-label reveal" data-de="Standorte" data-en="Locations">Standorte</div>
@@ -1266,6 +1435,58 @@ function submitContact(){
   document.getElementById('c-success').style.display='block';
   setTimeout(closeContact,3000);
 }
+
+const DOCTORS=[
+  {name:'Gustavo',loc:'Neustadt-Glewe',img:null,url:'https://www.smartcare-praxen.de/mvz-neustadt-glewe'},
+  {name:'Ingo',loc:'Ludwigslust',img:null,url:'https://www.smartcare-praxen.de/mvz-ludwigslust'},
+  {name:'Ilhama',loc:'Ludwigslust',img:null,url:'https://www.smartcare-praxen.de/mvz-ludwigslust'},
+  {name:'Chan',loc:'Ludwigsfelde II',img:null,url:'https://www.smartcare-praxen.de/mvz-brandenburg'},
+  {name:'Ziervogel',loc:'Ludwigsfelde II',img:null,url:'https://www.smartcare-praxen.de/mvz-brandenburg'},
+  {name:'Juliana',loc:'Ludwigsfelde I',img:null,url:'https://www.smartcare-praxen.de/mvz-ludwigsfelde'},
+  {name:'Stephanie',loc:'Heidenau',img:null,url:'https://www.smartcare-praxen.de/mvz-heidenau'},
+  {name:'Kathrin',loc:'Heidenau',img:null,url:'https://www.smartcare-praxen.de/mvz-heidenau'},
+  {name:'Alex',loc:'Heidenau',img:null,url:'https://www.smartcare-praxen.de/mvz-heidenau'},
+  {name:'Andrea',loc:'Heidenau',img:null,url:'https://www.smartcare-praxen.de/mvz-heidenau'},
+];
+
+const JOURNEY_STEPS=[
+  {step:'Schritt 1',icon:'🏥',title:{de:'Patient kommt in Heidenau',en:'Patient arrives in Heidenau'},body:{de:'Vor-Ort-Team nimmt auf, führt Erstdiagnostik durch. KI-Plattform unterstützt Dokumentation.',en:'On-site team admits, conducts initial diagnostics. AI platform supports documentation.'}},
+  {step:'Schritt 2',icon:'🫁',title:{de:'Pulmologie-Bedarf erkannt',en:'Pulmonology need identified'},body:{de:'Kein lokaler Facharzt verfügbar – kein Problem. Smart Care Plattform verbindet direkt mit Smart Care MVZ Pulmologie Schwerin.',en:'No local specialist available – no problem. Smart Care Platform connects directly to Smart Care MVZ Pulmonology Schwerin.'}},
+  {step:'Schritt 3',icon:'💻',title:{de:'Remote-Termin Schwerin',en:'Remote appointment Schwerin'},body:{de:'Pulmonologe in Schwerin sieht Befunde, führt Video-Konsultation durch. Patient bleibt in Heidenau.',en:'Pulmonologist in Schwerin reviews findings, conducts video consultation. Patient stays in Heidenau.'}},
+  {step:'Ergebnis',icon:'✅',title:{de:'Vollständige Versorgung – ein Netzwerk',en:'Complete care – one network'},body:{de:'Patient vollständig versorgt ohne Anfahrt. Smart Care rechnet haus- und fachärztliche Leistung ab. Höherer Umsatz pro Patient.',en:'Patient fully treated without travel. Smart Care bills GP and specialist services. Higher revenue per patient.'}}
+];
+
+function initDoctorGrid(){
+  const g=document.getElementById('doctorGrid');
+  if(!g) return;
+  g.innerHTML=DOCTORS.map(d=>`<div class="doctor-item">
+    <a href="${d.url||'#'}" target="_blank" style="text-decoration:none;">
+      <div class="doctor-circle">
+        ${d.img?`<img src="${d.img}" alt="${d.name}">`:`<img src="logo.png" class="doc-logo" alt="SC">`}
+      </div>
+    </a>
+    <div class="doctor-name">${d.name}</div>
+    <div class="doctor-loc">${d.url?`<a href="${d.url}" target="_blank" style="color:var(--teal-light);font-size:0.55rem;text-decoration:none;">${d.loc} ↗</a>`:d.loc}</div>
+  </div>`).join('');
+}
+
+function initJourneySteps(){
+  const c=document.getElementById('journeySteps');
+  if(!c) return;
+  const l=lang||'de';
+  c.innerHTML=JOURNEY_STEPS.map(s=>`
+    <div class="journey-step">
+      <div class="journey-step-header">
+        <span class="journey-step-icon">${s.icon}</span>
+        <div>
+          <div class="journey-step-label">${s.step}</div>
+          <div class="journey-step-title">${s.title[l]||s.title.de}</div>
+        </div>
+      </div>
+      <div class="journey-step-body">${s.body[l]||s.body.de}</div>
+    </div>`).join('');
+}
+
 // Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click',e=>{
