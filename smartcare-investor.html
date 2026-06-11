@@ -492,10 +492,8 @@ body{font-family:var(--font-sans);background:#f7f9f7;color:var(--text);overflow-
 /* ═══════════════════════════════════
    PROFILE VISIBILITY
 ═══════════════════════════════════ */
-.hidden-pe,.hidden-ba,.hidden-ff{display:none;}
-body.profile-pe .hidden-pe{display:block;}
-body.profile-ba .hidden-ba{display:block;}
-body.profile-ff .hidden-ff{display:block;}
+/* profile blocks always visible now */
+.hidden-pe,.hidden-ba,.hidden-ff{display:block;}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
 
@@ -661,6 +659,17 @@ body.profile-ff .hidden-ff{display:block;}
   .exclusive-banner span{font-size:0.92rem;padding:0.6rem 1.2rem;}
 }
 
+
+.faq-filters{display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:1.5rem;justify-content:center;}
+.faq-filter{
+  background:var(--gray-light);border:1px solid var(--border);
+  color:var(--text-muted);font-family:'DM Sans',sans-serif;
+  font-size:0.85rem;font-weight:500;padding:0.5rem 1.1rem;
+  border-radius:50px;cursor:pointer;transition:all 0.2s;
+}
+.faq-filter:hover{border-color:var(--teal);color:var(--teal-dark);}
+.faq-filter.active{background:var(--teal);color:white;border-color:var(--teal);}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
@@ -690,29 +699,7 @@ body.profile-ff .hidden-ff{display:block;}
 </div>
 
 <!-- ═══════ TYPE SELECTOR ═══════ -->
-<div id="type-selector">
-  <div class="type-box">
-    <h2 data-de="Willkommen bei Smart Care" data-en="Welcome to Smart Care">Willkommen bei Smart Care</h2>
-    <p data-de="Damit wir Ihnen die relevantesten Informationen zeigen – wer sind Sie?" data-en="To show you the most relevant information – who are you?">Damit wir Ihnen die relevantesten Informationen zeigen – wer sind Sie?</p>
-    <div class="type-grid">
-      <div class="type-card" onclick="setProfile('pe')">
-        <div class="type-icon">🏦</div>
-        <div class="type-name" data-de="PE / Family Office" data-en="PE / Family Office">PE / Family Office</div>
-        <div class="type-desc" data-de="Institutionelle Investoren" data-en="Institutional investors">Institutionelle Investoren</div>
-      </div>
-      <div class="type-card" onclick="setProfile('ba')">
-        <div class="type-icon">💡</div>
-        <div class="type-name" data-de="Business Angel" data-en="Business Angel">Business Angel</div>
-        <div class="type-desc" data-de="Einzelinvestoren & Clubs" data-en="Individual investors & Clubs">Einzelinvestoren & Clubs</div>
-      </div>
-      <div class="type-card" onclick="setProfile('ff')">
-        <div class="type-icon">🤝</div>
-        <div class="type-name" data-de="Family & Friends" data-en="Family & Friends">Family & Friends</div>
-        <div class="type-desc" data-de="Persönliches Netzwerk" data-en="Personal network">Persönliches Netzwerk</div>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <!-- ═══════ MAIN APP ═══════ -->
 <div id="app">
@@ -1087,7 +1074,7 @@ body.profile-ff .hidden-ff{display:block;}
       <div class="instrument-card reveal reveal-delay-3">
         <div class="instrument-type">Family & Friends</div>
         <div class="instrument-title" data-de="Nachrangdarlehen" data-en="Subordinated Loan">Nachrangdarlehen</div>
-        <div class="instrument-detail" data-de="Einstieg ab 10.000 €. Feste Verzinsung 5% p.a. Laufzeit 5 Jahre. Direkt in Praxiswachstum investiert." data-en="Entry from €10,000. Fixed interest 5% p.a. Term 5 years. Invested directly in practice growth.">Einstieg ab 10.000 €. Feste Verzinsung 5% p.a. Laufzeit 5 Jahre. Direkt in Praxiswachstum investiert.</div>
+        <div class="instrument-detail" data-de="Einstieg ab 25.000 €. Feste Verzinsung 5% p.a. Laufzeit 5 Jahre. Direkt in Praxiswachstum investiert." data-en="Entry from €25,000. Fixed interest 5% p.a. Term 5 years. Invested directly in practice growth.">Einstieg ab 25.000 €. Feste Verzinsung 5% p.a. Laufzeit 5 Jahre. Direkt in Praxiswachstum investiert.</div>
       </div>
     </div>
     <div style="margin-top:3rem;">
@@ -1147,6 +1134,12 @@ body.profile-ff .hidden-ff{display:block;}
   <div class="section">
     <div class="section-label reveal" data-de="Häufige Fragen" data-en="Frequently Asked Questions">Häufige Fragen</div>
     <h2 class="section-title reveal reveal-delay-1" data-de="Ihre Fragen, beantwortet." data-en="Your questions, answered.">Ihre Fragen, beantwortet.</h2>
+    <div class="faq-filters reveal reveal-delay-2" id="faq-filters">
+      <button class="faq-filter active" onclick="filterFAQ('all',this)" data-de="Alle" data-en="All">Alle</button>
+      <button class="faq-filter" onclick="filterFAQ('pe',this)" data-de="PE / Family Office" data-en="PE / Family Office">PE / Family Office</button>
+      <button class="faq-filter" onclick="filterFAQ('ba',this)" data-de="Business Angel" data-en="Business Angel">Business Angel</button>
+      <button class="faq-filter" onclick="filterFAQ('ff',this)" data-de="Family & Friends" data-en="Family & Friends">Family & Friends</button>
+    </div>
     <div class="faq-list reveal reveal-delay-2" id="faq-list"></div>
   </div>
 </section>
@@ -1244,7 +1237,7 @@ function checkPassword(){
     setTimeout(()=>{
       document.getElementById('gate').style.display='none';
       document.getElementById('app').style.display='block';
-      setProfile('pe');
+      initApp();
     },500);
   } else {
     const e=document.getElementById('pw-error');
@@ -1255,10 +1248,7 @@ function checkPassword(){
 document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
 
 // ═══ PROFILE ═══
-function setProfile(p){
-  profile=p;
-  document.body.className='profile-'+p;
-  document.getElementById('type-selector').style.display='none';
+function initApp(){
   renderFAQ(); renderDonut(); renderGrowthChart();
   initHeroCanvas();
   setTimeout(initMap,100);
@@ -1282,7 +1272,7 @@ function setLang(l){
     const t=el.getAttribute('data-'+l);
     if(t) el.innerHTML=t;
   });
-  if(profile) renderFAQ();
+  renderFAQ();
 }
 
 // ═══ TOPBAR SCROLL ═══
@@ -1442,7 +1432,6 @@ const faqs={
     de:[
       {q:"Wie ist Smart Care rechtlich strukturiert?",a:"Smart Care GmbH ist die Holding. Darunter operieren MVZ Bannewitz GmbH (Sachsen, Brandenburg) und Smart Care Brandenburg GmbH. Alle MVZs sind kassenzugelassen und operieren unter ärztlicher Leitung von Dr. Janina Kaplan gemäß §95 SGB V."},
       {q:"Welche EBITDA-Margen sind auf Praxisebene realistisch?",a:"Nach 12–18 Monaten Betrieb erzielen unsere Praxen eine Bruttomarge von ~25% auf Praxisebene (78k€ Marge auf 308k€ Umsatz). Durch die zentrale Plattform sinken die Overhead-Kosten bei Skalierung weiter."},
-      {q:"Was ist der Exit-Pfad?",a:"Mittelfristig: strategischer Verkauf an einen größeren MVZ-Betreiber oder Healthcare-PE. Alternativ: Management-Buyout oder Börsennotiz. Der MVZ-Markt ist strukturell durch Unterversorgung getrieben und für strategische Käufer sehr attraktiv."},
       {q:"Was sind die Wachstumshebel?",a:"1) Standardisierte Praxisakquisition (4-Stufen-Prozess), 2) Digitale Integration zur Kostensenkung, 3) Fachärztliche Erweiterung für höhere Erlöse/Patient, 4) B2B-Expansion (häusliche Pflege, Telemedizin-Partnerschaften, Apotheken)."},
       {q:"Regulatorischer Rahmen – was sind die Hauptrisiken?",a:"MVZs unterliegen der KV-Zulassung (SGB V). Zulassungsrechte sind handelbar (§103 SGB V). Hauptrisiken: Änderung KV-Vergütungssätze, Arztrekrutierung. Mitigiert durch Hybrid-Modell, Diversifikation und Fördermittelzugang."},
       {q:"Was ist die aktuelle Gesellschafterstruktur?",a:"Details werden im persönlichen Gespräch mit NDA geteilt. Bitte Termin vereinbaren."}
@@ -1450,7 +1439,6 @@ const faqs={
     en:[
       {q:"How is Smart Care legally structured?",a:"Smart Care GmbH is the holding company. MVZ Bannewitz GmbH (Saxony, Brandenburg) and Smart Care Brandenburg GmbH operate underneath. All MVZs are health insurance approved under medical direction of Dr. Janina Kaplan per §95 SGB V."},
       {q:"What EBITDA margins are realistic at practice level?",a:"After 12–18 months, practices achieve ~25% gross margin (€78k on €308k revenue). Central platform costs decrease further as we scale."},
-      {q:"What is the exit path?",a:"Medium-term: strategic sale to a larger MVZ operator or healthcare PE. Alternatively: management buyout or IPO. The MVZ market is structurally driven by undersupply and attractive to strategic buyers."},
       {q:"What are the growth levers?",a:"1) Standardized practice acquisition (4-step process), 2) Digital integration for cost reduction, 3) Specialist expansion for higher revenue per patient, 4) B2B expansion (home care, telemedicine partnerships, pharmacies)."},
       {q:"Regulatory framework – what are the main risks?",a:"MVZs require KV approval (SGB V). Approval rights are tradable (§103 SGB V). Main risks: KV fee schedule changes, physician recruitment. Mitigated by hybrid model, diversification and funding access."},
       {q:"What is the current shareholder structure?",a:"Details are shared in a personal meeting with NDA. Please schedule an appointment."}
@@ -1474,34 +1462,46 @@ const faqs={
   },
   ff:{
     de:[
-      {q:"Was macht Smart Care genau?",a:"Wir übernehmen Arztpraxen, die keinen Nachfolger finden, und modernisieren sie zu hybriden Medizinischen Versorgungszentren. Patienten können teils vor Ort kommen, teils digital behandelt werden. So können wir mehr Menschen versorgen."},
-      {q:"Warum ist das wichtig?",a:"In Deutschland gibt es schon heute 5.000 unbesetzte Hausarztpraxen. Millionen Menschen haben keinen Arzt in der Nähe. Das Problem wird in den nächsten Jahren dramatisch größer. Smart Care ist Teil der Lösung."},
-      {q:"Was passiert mit meinem Geld?",a:"Dein Investment geht direkt in den Aufkauf und die Modernisierung von Arztpraxen. Du erhältst 5% Zinsen pro Jahr auf dein eingesetztes Kapital, über eine Laufzeit von 5 Jahren. Am Ende der Laufzeit wird dein Kapital zurückgezahlt."},
       {q:"Was ist das Risiko?",a:"Wie bei jedem Investment gibt es Risiken – insbesondere regulatorische Änderungen im Gesundheitssystem. Wir haben aber bereits funktionierende Praxen mit validierten Zahlen. Das Nachrangdarlehen ist ein in der Startup-Welt verbreitetes und seriöses Instrument."},
-      {q:"Ab wann und wie viel kann ich investieren?",a:"Einstieg ab 10.000 €. Kein Höchstbetrag. Du bekommst eine formale Darlehensvereinbarung und regelmäßige Updates."},
+      {q:"Ab wann und wie viel kann ich investieren?",a:"Einstieg ab 25.000 €. Kein Höchstbetrag. Du bekommst eine formale Darlehensvereinbarung und regelmäßige Updates."},
       {q:"Wer steckt dahinter?",a:"Martin Lehradt & Dr. Janina Kaplan sind die Gründer – beides erfahrene Profis im Gesundheitswesen. Dazu ein starker Beirat aus der Healthcare-Investmentwelt und ein CFO mit internationaler Erfahrung."}
     ],
     en:[
-      {q:"What exactly does Smart Care do?",a:"We acquire medical practices that can't find a successor and modernize them into hybrid Medical Care Centers. Patients can partially come in person, and partially be treated digitally, allowing us to care for more people."},
-      {q:"Why does this matter?",a:"Germany already has 5,000 vacant general practices. Millions have no doctor nearby. The problem will grow dramatically in coming years. Smart Care is part of the solution."},
-      {q:"What happens to my money?",a:"Your investment goes directly into acquiring and modernizing medical practices. You receive 5% interest per year, over a term of 5 years. Your capital is repaid at the end of the term."},
       {q:"What are the risks?",a:"Like any investment, risks exist – particularly regulatory changes in healthcare. However, we already have functioning practices with validated numbers. The subordinated loan is a widely-used, serious instrument in the startup world."},
-      {q:"How much and when can I invest?",a:"Entry from €10,000. No maximum. You receive a formal loan agreement and regular updates."},
+      {q:"How much and when can I invest?",a:"Entry from €25,000. No maximum. You receive a formal loan agreement and regular updates."},
       {q:"Who is behind this?",a:"Martin Lehradt & Dr. Janina Kaplan are the founders – experienced healthcare professionals. Plus a strong advisory board from healthcare investment and an interim CFO with international experience."}
     ]
   }
 };
 
+let faqFilter = 'all';
 function renderFAQ(){
-  if(!profile) return;
   const c=document.getElementById('faq-list');
-  c.innerHTML=faqs[profile][lang].map((f,i)=>`
+  if(!c) return;
+  const l = lang || 'de';
+  let list = [];
+  const seen = new Set();
+  const profs = faqFilter === 'all' ? ['pe','ba','ff'] : [faqFilter];
+  profs.forEach(prof=>{
+    if(faqs[prof] && faqs[prof][l]){
+      faqs[prof][l].forEach(f=>{
+        if(!seen.has(f.q)){ seen.add(f.q); list.push(f); }
+      });
+    }
+  });
+  c.innerHTML=list.map((f,i)=>`
     <div class="faq-item" id="fq${i}">
       <div class="faq-question" onclick="toggleFAQ(${i})">
         <span>${f.q}</span><span class="faq-arrow">▾</span>
       </div>
       <div class="faq-answer"><div class="faq-answer-inner">${f.a}</div></div>
     </div>`).join('');
+}
+function filterFAQ(f, btn){
+  faqFilter = f;
+  document.querySelectorAll('.faq-filter').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderFAQ();
 }
 function toggleFAQ(i){document.getElementById('fq'+i).classList.toggle('open');}
 
